@@ -1,2 +1,2 @@
-# bp2026
+# BP2026
 Inteligentný agent pre podporu práce špeciálneho pedagóga
