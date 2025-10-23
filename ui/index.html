@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Demo</title>
+  <style>
+    body{font-family:system-ui,Arial;max-width:760px;margin:40px auto;padding:0 16px}
+    textarea,input,button{font-size:16px}
+    textarea{width:100%}
+    #out{background:#f6f6f6;padding:12px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <h1>AI Demo</h1>
+  <p>Введи питання:</p>
+  <textarea id="q" rows="5" placeholder="Наприклад: Pomož so žiakom 3. ročníka..."></textarea><br />
+  <button id="btn">Запитати</button>
+  <h3>Відповідь</h3>
+  <div id="out">(поки порожньо)</div>
+
+  <!-- Додаємо легкий markdown-рендерер -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    document.getElementById('btn').onclick = async () => {
+      const q = document.getElementById('q').value.trim();
+      const out = document.getElementById('out');
+      if(!q){ out.textContent = 'Введи питання ↑'; return; }
+      out.textContent = 'Думаю...';
+      try {
+        const r = await fetch('/api/ask', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({question:q})
+        });
+        const data = await r.json();
+        const md = data.answer ?? '';
+        out.innerHTML = marked.parse(md);   // ← Рендер у HTML
+      } catch (e) {
+        out.textContent = 'Помилка запиту: ' + e;
+      }
+    };
+  </script>
+</body>
+</html>

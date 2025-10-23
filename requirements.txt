@@ -1,0 +1,34 @@
+# Основні залежності для RAG системи
+chromadb>=0.4.0
+openai>=1.0.0
+rich>=13.0.0
+numpy>=1.24.0
+
+# Для обробки документів
+pathlib2>=2.3.0
+
+# Додаткові утиліти
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+
+# FastAPI та веб-сервер
+fastapi
+uvicorn[standard]
+
+# LangChain екосистема
+langchain-community
+langchain-huggingface
+langchain-text-splitters
+langchain-anthropic
+langchain-openai
+
+# Векторка
+faiss-cpu
+
+# Конвертації
+docling>=2.1.0
+
+# Основний LangChain
+langchain
+sentence-transformers>=2.2.0,<3.0.0
+langchain-huggingface>=0.0.6
