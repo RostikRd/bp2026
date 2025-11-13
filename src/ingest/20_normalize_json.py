@@ -70,6 +70,7 @@ def infer_levels(md_text: str):
         r"level\s*(\d)",
         r"PO\s*(\d)",
         r"podporné\s+opatrenie\s*(\d)",
+        r"1\.(\d)",  # 1.1, 1.2, 1.3 - витягне 1, 2, 3
     ]
     
     levels = set()
@@ -82,12 +83,33 @@ def infer_levels(md_text: str):
                     levels.add(level)
             except ValueError:
                 continue
+
+    text_lower = md_text.lower()
+
+    has_all_levels = (
+        ('1.1' in text_lower or 'všeobecné podporné opatrenia' in text_lower) and
+        ('1.2' in text_lower or 'cielené podporné opatrenia' in text_lower) and
+        ('1.3' in text_lower or 'špecifické podporné opatrenia' in text_lower)
+    )
+    
+    if has_all_levels:
+        levels.add(1)
+        levels.add(2)
+        levels.add(3)
     
     if not levels:
-        if any(word in md_text.lower() for word in ['základné', 'všeobecné', 'univerzálne']):
+        # Рівень 1 - všeobecné/základné/univerzálne
+        if any(word in text_lower for word in ['všeobecné', 'základné', 'univerzálne']):
             levels.add(1)
-        elif any(word in md_text.lower() for word in ['cieľové', 'špecifické', 'individuálne']):
+        # Rівень 2 - cielené (ale не špecializované)
+        if any(word in text_lower for word in ['cielené', 'cieľové']) and 'špecializované' not in text_lower:
             levels.add(2)
+        # Rівень 3 - špecifické podporné opatrenia / špecializované
+        if any(phrase in text_lower for phrase in ['špecifické podporné opatrenia', 'špecializované', 'špeciálne']):
+            levels.add(3)
+        # Якщо є "individuálne" але без інших маркерів - може бути рівень 2 або 3
+        if 'individuálne' in text_lower and not levels:
+            levels.add(2) 
     
     return sorted(levels) if levels else [1]
 
@@ -118,6 +140,10 @@ for p in MD_DIR.rglob("*.md"):
         continue
     
     title, sections = extract_title_and_sections(md)
+    
+    # Špeciálna úprava pre katalog.md
+    if "katalog.md" in p.as_posix() or p.name == "katalog.md":
+        title = "Kniha katalóg podporných opatrení"
     
     if len(sections) < 1:
         continue

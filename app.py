@@ -6,7 +6,6 @@ import os, sys, subprocess, textwrap
 
 app = FastAPI(title="BP2026 API")
 
-# Додаємо CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,18 +14,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# спробуємо імпортувати функцію ask з твого коду
+
 ASK = None
 try:
-    sys.path.append(os.getcwd())  # щоб бачився пакет src
-    from src.rag.ask_cli import ask as ASK  # змінюй, якщо функція в іншому місці
+    sys.path.append(os.getcwd()) 
+    from src.rag.ask_cli import ask as ASK  
 except Exception:
     pass
 
 def run_ai(q: str) -> str:
     if callable(ASK):
         return ASK(q)
-    # fallback: запуск CLI-скрипта
     try:
         out = subprocess.check_output(
             [sys.executable, "src/rag/ask_cli.py", q],
@@ -34,7 +32,7 @@ def run_ai(q: str) -> str:
         )
         return out.strip()
     except subprocess.CalledProcessError as e:
-        return "Помилка AI: " + textwrap.shorten(e.output, width=1000)
+        return "Error Ai: " + textwrap.shorten(e.output, width=1000)
 
 class Q(BaseModel):
     question: str
@@ -43,5 +41,4 @@ class Q(BaseModel):
 def ask(q: Q):
     return {"answer": run_ai(q.question)}
 
-# віддаємо твій фронт з папки ui/
 app.mount("/", StaticFiles(directory="ui", html=True), name="ui")

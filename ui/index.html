@@ -9,15 +9,24 @@
     textarea,input,button{font-size:16px}
     textarea{width:100%}
     #out{background:#f6f6f6;padding:12px;border-radius:8px}
+    #out h2:has(+ *), #out h2 + * {margin-top: 8px}
+    #out a {display: inline-block; word-break: break-all}
+    /* Стилі для списку джерел */
+    #out ul {list-style-type: disc; padding-left: 24px; margin: 12px 0}
+    #out ul li {margin: 6px 0; line-height: 1.6}
+    #out ol {padding-left: 24px; margin: 12px 0}
+    #out ol li {margin: 6px 0; line-height: 1.6}
+    /* Забезпечуємо переноси для довгих URL */
+    #out a {word-break: break-all; display: inline-block}
   </style>
 </head>
 <body>
   <h1>AI Demo</h1>
-  <p>Введи питання:</p>
-  <textarea id="q" rows="5" placeholder="Наприклад: Pomož so žiakom 3. ročníka..."></textarea><br />
-  <button id="btn">Запитати</button>
-  <h3>Відповідь</h3>
-  <div id="out">(поки порожньо)</div>
+  <p>Enter your question:</p>
+  <textarea id="q" rows="5" placeholder="Napriklad: Pomož so žiakom 3. ročníka..."></textarea><br />
+  <button id="btn">Ask</button>
+  <h3>Answer</h3>
+  <div id="out">(already empty)</div>
 
   <!-- Додаємо легкий markdown-рендерер -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -25,8 +34,8 @@
     document.getElementById('btn').onclick = async () => {
       const q = document.getElementById('q').value.trim();
       const out = document.getElementById('out');
-      if(!q){ out.textContent = 'Введи питання ↑'; return; }
-      out.textContent = 'Думаю...';
+      if(!q){ out.textContent = 'Enter your question ↑'; return; }
+      out.textContent = 'Thinking...';
       try {
         const r = await fetch('/api/ask', {
           method:'POST',
@@ -34,10 +43,41 @@
           body: JSON.stringify({question:q})
         });
         const data = await r.json();
-        const md = data.answer ?? '';
-        out.innerHTML = marked.parse(md);   // ← Рендер у HTML
+        let md = data.answer ?? '';
+        
+        // Обробка джерел - перетворюємо на правильний Markdown список
+        // Знаходимо секцію "Zdroje" і всі джерела після неї
+        const zdrojeMatch = md.match(/## 📚 Zdroje\n\n(.*?)(?=\n\n|$)/s);
+        if (zdrojeMatch) {
+          const zdrojeText = zdrojeMatch[1];
+          // Розбиваємо на окремі джерела (по рядках)
+          const sources = zdrojeText.split('\n').filter(line => line.trim());
+          // Формуємо Markdown список
+          const formattedSources = sources.map(line => {
+            // Видаляємо зайві пробіли і форматуємо
+            line = line.trim();
+            // Якщо рядок вже починається з "-", залишаємо як є
+            if (line.startsWith('-')) return line;
+            // Якщо рядок починається з числа і крапки, перетворюємо на список
+            const numMatch = line.match(/^(\d+)\.\s*(.+)$/);
+            if (numMatch) {
+              return `- ${numMatch[2]}`;
+            }
+            // Якщо рядок починається з "[число]", додаємо "-"
+            const bracketMatch = line.match(/^\[(\d+)\]\s*(.+)$/);
+            if (bracketMatch) {
+              return `- [${bracketMatch[1]}] ${bracketMatch[2]}`;
+            }
+            return `- ${line}`;
+          }).join('\n');
+          
+          // Замінюємо стару секцію на нову
+          md = md.replace(/## 📚 Zdroje\n\n.*/s, `## 📚 Zdroje\n\n${formattedSources}\n`);
+        }
+        
+        out.innerHTML = marked.parse(md);
       } catch (e) {
-        out.textContent = 'Помилка запиту: ' + e;
+        out.textContent = 'Failed: ' + e;
       }
     };
   </script>

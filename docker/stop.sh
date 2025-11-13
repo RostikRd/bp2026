@@ -1,27 +1,23 @@
 #!/bin/bash
-# Скрипт для зупинки Docker контейнера
-
+# Stops BP2026 Docker container
 set -e
 
-# Визначаємо директорії
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DOCKER_DIR="$SCRIPT_DIR"
 
-# Переходимо в папку docker
 cd "$DOCKER_DIR"
 
-# Визначаємо команду docker-compose
 if command -v docker-compose &> /dev/null; then
     COMPOSE_CMD="docker-compose"
 elif docker compose version &> /dev/null 2>&1; then
     COMPOSE_CMD="docker compose"
 else
-    echo "❌ docker-compose не знайдено."
+    echo "❌ docker-compose not found."
     exit 1
 fi
 
-echo "🛑 Зупинка контейнера..."
+echo "🛑 Stopping container..."
 $COMPOSE_CMD down
 
-echo "✅ Контейнер зупинено."
+echo "✅ Container stopped."
 

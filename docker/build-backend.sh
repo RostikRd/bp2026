@@ -1,30 +1,25 @@
 #!/bin/bash
-# Скрипт для збірки тільки backend (функціональна частина)
-
+# Builds only backend Docker image (functional part) for BP2026 application
 set -e
 
-echo "🔨 Збірка Backend (функціональна частина)..."
+echo "🔨 Building Backend (functional part)..."
 
-# Визначаємо директорію скрипта та корінь проєкту
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DOCKER_DIR="$SCRIPT_DIR"
 
-# Переходимо в папку docker
 cd "$DOCKER_DIR"
 
-# Визначаємо команду docker-compose
 if command -v docker-compose &> /dev/null; then
     COMPOSE_CMD="docker-compose"
 elif docker compose version &> /dev/null 2>&1; then
     COMPOSE_CMD="docker compose"
 else
-    echo "❌ docker-compose не знайдено."
+    echo "❌ docker-compose not found."
     exit 1
 fi
 
-# Білдимо тільки backend target
-echo "📦 Збірка образу з target 'backend'..."
+echo "📦 Building image with target 'backend'..."
 docker build \
     --target backend \
     -f "$DOCKER_DIR/Dockerfile" \
@@ -32,10 +27,10 @@ docker build \
     "$PROJECT_ROOT"
 
 echo ""
-echo "✅ Backend зібрано успішно!"
+echo "✅ Backend built successfully!"
 echo ""
-echo "💡 Для збірки повного образу з frontend використайте:"
+echo "💡 To build full image with frontend, use:"
 echo "   bash docker/build-frontend.sh"
-echo "   або"
+echo "   or"
 echo "   bash docker/build-all.sh"
 

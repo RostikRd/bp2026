@@ -4,10 +4,8 @@ from tqdm import tqdm
 
 from docling.document_converter import DocumentConverter
 
-# Спроба імпорту нового експортера (Docling 2.x).
-# Якщо немає — працюватимемо через старий метод export_markdown().
 try:
-    from docling.datamodel.exporters import MarkdownExporter  # Docling >= 2.0
+    from docling.datamodel.exporters import MarkdownExporter  
     HAS_EXPORTER = True
 except Exception:
     MarkdownExporter = None
@@ -20,32 +18,22 @@ OUT.mkdir(parents=True, exist_ok=True)
 converter = DocumentConverter()
 md_exporter = MarkdownExporter() if HAS_EXPORTER else None
 
-candidates = [p for p in RAW.rglob("*") if p.suffix.lower() in {".html", ".htm"}]  # PDF вимкнено
+candidates = [p for p in RAW.rglob("*") if p.suffix.lower() in {".html", ".htm", ".pdf"}]
+
+candidates = [p for p in candidates if "_ignore" not in p.parts]
 print("Files to convert:", len(candidates))
 
 def to_markdown(conv_result):
-    """
-    Повертає markdown з урахуванням версії Docling.
-    - Docling 2.x: conv_result.document + MarkdownExporter
-    - Docling 1.x: conv_result.export_markdown()
-    """
-    # Новий шлях (2.x)
     if HAS_EXPORTER and hasattr(conv_result, "document") and md_exporter is not None:
         return md_exporter.export(conv_result.document)
 
-    # Старий шлях (1.x)
     if hasattr(conv_result, "export_markdown"):
         return conv_result.export_markdown()
 
-    # Іноді у 1.x markdown доступний як метод у .document
     doc = getattr(conv_result, "document", None)
     if doc is not None and hasattr(doc, "export_markdown"):
         return doc.export_markdown()
 
-    raise RuntimeError(
-        "Docling: не знайдено способу експорту в Markdown. "
-        "Онови пакет (рекомендовано: pip install -U 'docling>=2.1.0')."
-    )
 
 for inp in tqdm(candidates, desc="Docling convert"):
     try:

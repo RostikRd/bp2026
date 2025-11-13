@@ -46,6 +46,28 @@ data_raw/
 *.env
 api_keys.env
 
+# Docker
+# Docker environment files (містять секрети)
+docker/.env
+docker/.env.*
+*.env.local
+.env.*.local
+
+# Docker volumes та дані
+docker/volumes/
+docker/data/
+
+# Docker build cache (якщо зберігається локально)
+.docker/
+
+# Docker Compose override files
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# Docker logs
+docker/*.log
+
 # Logs
 *.log
 

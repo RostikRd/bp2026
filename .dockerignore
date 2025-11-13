@@ -1,0 +1,64 @@
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Data files (не потрібні для роботи, тільки для збірки індексу)
+data_raw/
+data_processed/
+
+# Build scripts (не потрібні для runtime)
+src/ingest/
+src/rag/build_index_e5.py
+scripts/
+
+# Documentation
+*.md
+README.md
+bp2026/
+
+# Environment files (будуть передані через docker-compose або env vars)
+api_keys.env
+.env
+*.env
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Docker files themselves
+docker/
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Other
+*.sh
+fetch_from_links.sh
+run.sh
+
