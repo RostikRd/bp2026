@@ -1,20 +1,101 @@
-# BP2026 - Inteligentný agent pre podporu práce špeciálneho pedagóga
-
-RAG (Retrieval-Augmented Generation) systém pre konzultácie v oblasti vzdelávacej podpory na Slovensku. Systém používa AI na základe oficiálnych dokumentov o podporných opatreniach.
+# BP2026 - Kompletná dokumentácia projektu
 
 ## 📋 Obsah
 
-1. [Sťahovanie projektu](#sťahovanie-projektu)
-2. [Inštalácia a spustenie](#inštalácia-a-spustenie)
-3. [Štruktúra projektu](#štruktúra-projektu)
-4. [Skripty a ich funkcie](#skripty-a-ich-funkcie)
-5. [Hlavné funkcie a moduly](#hlavné-funkcie-a-moduly)
-6. [Docker konfigurácia](#docker-konfigurácia)
-7. [Riešenie problémov](#riešenie-problémov)
+1. [Opis projektu](#opis-projektu)
+2. [Architektúra systému](#architektúra-systému)
+3. [Inštalácia a spustenie](#inštalácia-a-spustenie)
+4. [Pipeline spracovania dát](#pipeline-spracovania-dát)
+5. [Technické detaily](#technické-detaily)
+6. [Použité technológie](#použité-technológie)
+7. [Štruktúra projektu](#štruktúra-projektu)
+8. [Použitie systému](#použitie-systému)
+9. [Riešenie problémov](#riešenie-problémov)
 
 ---
 
-## 📥 Sťahovanie projektu
+## Opis projektu
+
+**Názov:** BP2026 - Inteligentný agent pre podporu práce špeciálneho pedagóga
+
+**Typ projektu:** RAG (Retrieval-Augmented Generation) systém pre konzultácie v oblasti vzdelávacej podpory na Slovensku
+
+**Účel:** Systém používa umelú inteligenciu na základe oficiálnych dokumentov o podporných opatreniach na poskytovanie konzultácií špeciálnym pedagógom. Systém pracuje s katalógom podporných opatrení z portálu podporneopatrenia.minedu.sk a poskytuje overiteľné odpovede na základe týchto dokumentov.
+
+**Kľúčové vlastnosti:**
+- Sémantické vyhľadávanie dokumentov
+- Generovanie odpovedí na základe oficiálnych zdrojov
+- Podpora slovenčiny
+- Filtrovanie podľa úrovní podpory (1-3)
+- Docker kontajnerizácia
+- REST API pre integráciu
+
+---
+
+## Architektúra systému
+
+### 3-vrstvová architektúra
+
+```
+┌─────────────────────┐
+│   Frontend Layer    │  HTML + JavaScript (ui/index.html)
+│   (UI vrstva)       │  → Odosiela požiadavky cez REST API
+└──────────┬──────────┘
+           │ HTTP POST /api/ask
+           ▼
+┌─────────────────────┐
+│   Backend Layer     │  FastAPI server (app.py)
+│   (API vrstva)      │  → Prijíma požiadavky, volá RAG systém
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   RAG Engine        │  LangChain + FAISS (src/rag/ask_cli.py)
+│   (Logika)          │  → Hľadá relevantné dokumenty
+│                     │  → Generuje odpoveď pomocou LLM
+└─────────────────────┘
+```
+
+### Komponenty systému
+
+#### 1. Frontend (`ui/index.html`)
+- Jednoduché HTML rozhranie s textarea pre požiadavky
+- JavaScript kód odosiela požiadavky na `/api/ask` endpoint
+- Zobrazovanie odpovedí s Markdown renderovaním
+- Používa Marked.js pre renderovanie Markdown
+
+#### 2. Backend API (`app.py`)
+- FastAPI server poskytuje REST API
+- Endpoint `/api/ask` prijíma požiadavky
+- Volá RAG systém a vracia odpovede
+- Obsluhuje statické súbory (frontend)
+
+**Kľúčové funkcie:**
+- `run_ai(q: str) -> str` - spracovanie požiadaviek cez RAG systém
+- `@app.post("/api/ask")` - REST endpoint pre odosielanie požiadaviek
+
+#### 3. RAG Engine (`src/rag/ask_cli.py`)
+- Načítava vektorový index (FAISS)
+- Hľadá relevantné dokumenty cez sémantické vyhľadávanie
+- Filtruje dokumenty podľa úrovní podpory (1-3)
+- Generuje odpovede pomocou LLM (Claude/OpenAI)
+
+**Proces práce:**
+1. **Semantic Search**: Vytvorí embedding požiadavky, hľadá 20 najrelevantnejších dokumentov
+2. **Rozšírené vyhľadávanie**: Automaticky pridáva kľúčové slová na základe požiadavky
+3. **Filtrovanie**: Filtruje dokumenty podľa úrovní podpory, odstraňuje duplikáty
+4. **Generovanie**: Vytvorí kontext z top-12 dokumentov, odošle do LLM
+5. **Formátovanie**: Vráti štruktúrovanú odpoveď so zdrojmi
+
+**Kľúčové funkcie:**
+- `load_api_keys()` - načítava API kľúče z `api_keys.env`
+- `load_url_mapping()` - načítava mapovanie URL z `urls.txt`
+- `resolve_url(doc_meta: dict) -> str` - nájde správny URL dokumentu
+- `level_ok(meta: dict) -> bool` - filtruje dokumenty podľa úrovní podpory
+
+---
+
+## Inštalácia a spustenie
 
 ### Požiadavky
 
@@ -22,18 +103,7 @@ RAG (Retrieval-Augmented Generation) systém pre konzultácie v oblasti vzdeláv
 - Docker a Docker Compose (pre Docker spustenie)
 - Git
 
-### Klonovanie repozitára
-
-```bash
-git clone <url-repozitára>
-cd bp2026
-```
-
----
-
-## 🚀 Inštalácia a spustenie
-
-### Spôsob 1: Spustenie cez Docker (odporúčané)
+### Variant 1: Spustenie cez Docker (odporúčané)
 
 #### Krok 1: Inštalácia Docker
 
@@ -57,7 +127,7 @@ sudo usermod -aG docker $USER
 **Kontrola:**
 ```bash
 docker --version
-docker compose version  # alebo docker-compose --version
+docker compose version
 ```
 
 #### Krok 2: Konfigurácia API kľúčov
@@ -71,9 +141,9 @@ nano .env
 
 Pridajte vaše kľúče:
 ```env
-ANTHROPIC_API_KEY=váš_kľúč_tu
+ANTHROPIC_API_KEY=vaš_kľúč_tu
 # alebo použite OpenAI:
-# OPENAI_API_KEY=váš_kľúč_tu
+# OPENAI_API_KEY=vaš_kľúč_tu
 
 # Voliteľné nastavenia modelov
 ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
@@ -100,7 +170,7 @@ Otvorte v prehliadači:
 - **Hlavná stránka**: http://localhost:8000
 - **API dokumentácia**: http://localhost:8000/docs
 
-### Spôsob 2: Lokálne spustenie (bez Docker)
+### Variant 2: Lokálne spustenie (bez Docker)
 
 #### Krok 1: Vytvorenie virtuálneho prostredia
 
@@ -120,9 +190,9 @@ pip install -r requirements.txt
 Vytvorte súbor `api_keys.env` v koreňovom adresári:
 
 ```env
-ANTHROPIC_API_KEY=váš_kľúč_tu
+ANTHROPIC_API_KEY=vaš_kľúč_tu
 # alebo
-OPENAI_API_KEY=váš_kľúč_tu
+OPENAI_API_KEY=vaš_kľúč_tu
 ```
 
 #### Krok 4: Spustenie servera
@@ -133,13 +203,255 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 
 ---
 
-## 📁 Štruktúra projektu
+## Pipeline spracovania dát
+
+### Úplný pipeline
+
+```
+urls.txt → 00_wget.sh → HTML/PDF súbory (data_raw/)
+    ↓
+10_convert_docling.py → Markdown súbory (data_processed/md/)
+    ↓
+20_normalize_json.py → catalog.jsonl (normalizované dáta)
+    ↓
+build_index_e5.py → FAISS index (vektorová databáza)
+    ↓
+app.py → FastAPI server → Web rozhranie
+    ↓
+Používateľ → Otázka → Semantic search → AI → Odpoveď
+```
+
+### Detailný opis krokov
+
+#### Krok 1: Príprava dát
+
+**Pridanie URL do `urls.txt`**
+- Pridajte URL adresy stránok, ktoré chcete spracovať
+- Každý URL na samostatný riadok
+- Môžete pridať komentáre (riadky začínajúce s `#`)
+
+#### Krok 2: Sťahovanie dát (`00_wget.sh`)
+
+```bash
+bash src/ingest/00_wget.sh
+```
+
+**Čo robí:**
+- Číta URL z `urls.txt`
+- Používa `wget` na rekurzívne sťahovanie
+- Ukladá HTML a PDF súbory do `data_raw/manual/`
+- Ignoruje obrázky, CSS, JS súbory
+- Podporuje HTML, HTM a PDF formáty
+
+#### Krok 3: Konverzia na Markdown (`10_convert_docling.py`)
+
+```bash
+python src/ingest/10_convert_docling.py
+```
+
+**Čo robí:**
+- Nájde všetky HTML a PDF súbory v `data_raw/`
+- Konvertuje ich na Markdown pomocou Docling
+- Uloží Markdown súbory do `data_processed/md/`
+- Zachováva štruktúru adresárov
+
+#### Krok 4: Normalizácia do JSONL (`20_normalize_json.py`)
+
+```bash
+python src/ingest/20_normalize_json.py
+```
+
+**Čo robí:**
+- Načíta všetky Markdown súbory z `data_processed/md/`
+- Rozdelí na sekcie
+- Vytvorí JSONL súbor (`catalog.jsonl`) s normalizovanými dátami
+- Automaticky určí úrovne podpory (1, 2, 3) pre každý dokument
+- Hádže URL na základe cesty k súboru
+
+**Hlavné funkcie:**
+- `clean_text(text: str) -> str` - čistí text od nepotrebných znakov
+- `extract_title_and_sections(md_text: str)` - extrahuje nadpis a sekcie
+- `infer_levels(md_text: str)` - určuje úrovne podpory z textu
+- `guess_url_hint(md_path: Path)` - hádže URL na základe cesty
+
+#### Krok 5: Vytvorenie vektorového indexu (`build_index_e5.py`)
+
+```bash
+python src/rag/build_index_e5.py
+```
+
+**Čo robí:**
+- Načíta dokumenty z `data_processed/json/catalog.jsonl`
+- Rozdelí dokumenty na menšie chunks (1400 znakov, prekrytie 200)
+- Vytvorí embeddings (vektorové reprezentácie) textu pomocou multilingual-e5-small modelu
+- Vytvorí FAISS vektorový index v `rag_index/faiss_e5/`
+
+**Technické parametre:**
+- Embeddings model: `intfloat/multilingual-e5-small` (384 dimenzie)
+- Veľkosť chunk: 1400 znakov
+- Prekrytie chunk: 200 znakov
+
+#### Krok 6: Spustenie aplikácie
+
+**Lokálne:**
+```bash
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Cez Docker:**
+```bash
+bash docker/start.sh
+```
+
+### Automatizácia
+
+Namiesto manuálneho spúšťania krokov 3-5 môžete použiť:
+
+```bash
+bash scripts/bootstrap.sh
+```
+
+Tento skript automaticky:
+- Skontroluje, či je potrebné prestavať index
+- Odstráni nepotrebné súbory z `data_raw` (fonty, statické assety)
+- Spustí všetky potrebné konverzie
+- Vytvorí nový FAISS index
+
+---
+
+## Technické detaily
+
+### RAG architektúra
+
+**Retrieval-Augmented Generation (RAG)** - architektúra, ktorá kombinuje vyhľadávanie v znalostnej báze s generovaním textu pomocou veľkých jazykových modelov (LLM).
+
+**Hlavné komponenty RAG:**
+
+1. **Indexing (Indexácia)**
+   - Príprava dokumentov
+   - Chunking (rozdelenie na časti)
+   - Vytvorenie embeddings
+   - Uloženie do vektorovej databázy
+
+2. **Retrieval (Vyhľadávanie)**
+   - Vytvorenie embedding požiadavky
+   - Sémantické vyhľadávanie podobných dokumentov
+   - Filtrovanie podľa metadát
+   - Rozšírené vyhľadávanie podľa kľúčových slov
+
+3. **Generation (Generovanie)**
+   - Príprava kontextu z top dokumentov
+   - Vytvorenie systémového promptu
+   - Generovanie odpovede cez LLM
+   - Post-processing a pridanie citácií
+
+### Sémantické vyhľadávanie
+
+**Dense Retrieval** používa vektorové reprezentácie textu, kde požiadavka aj dokumenty sú reprezentované ako vektory vo vysokorozmernom priestore. Podobnosť medzi požiadavkou a dokumentmi sa meria pomocou cosine similarity.
+
+**Proces:**
+1. Vytvorenie embedding požiadavky pomocou embedding modelu
+2. Vyhľadanie k najpodobnejších chunks z vektorovej databázy
+3. Rozšírenie vyhľadávania podľa kľúčových slov
+4. Filtrovanie podľa metadát (úrovne podpory)
+5. Výber top-12 najrelevantnejších dokumentov
+
+### Stratégia chunking
+
+- **Veľkosť chunk**: 1400 znakov
+- **Prekrytie**: 200 znakov
+- **Cieľ**: Zachovanie kontextu medzi chunks
+
+### Filtrovanie podľa úrovní podpory
+
+Systém filtruje dokumenty podľa úrovní podpory (1, 2, 3):
+- Úroveň 1: Základné opatrenia podpory
+- Úroveň 2: Špecializované opatrenia
+- Úroveň 3: Intenzívne opatrenia
+
+Funkcia `level_ok()` kontroluje, či dokument zodpovedá potrebným úrovniam.
+
+### Rozšírené vyhľadávanie
+
+Systém automaticky pridáva relevantné termíny na základe požiadavky:
+- **ADHD** → pozornosť, sústredenie, organizácia, časové signály
+- **Matematika** → matematické úlohy, počítanie
+- **Čítanie** → čítanie s porozumením, pravopis
+- **ASD** → vizuálne rozvrhy, prechodové rituály
+- A ďalšie kategórie...
+
+### Generovanie odpovedí
+
+**Proces:**
+1. Vytvorenie kontextu z top-12 dokumentov (chunks do 1000 znakov)
+2. Nájdenie správnych URL pre každý dokument cez `resolve_url()`
+3. Odoslanie systémového promptu + kontextu + požiadavky do AI (Claude/GPT)
+4. Vrátenie štruktúrovanej odpovede so zdrojmi (číslo, názov, URL)
+
+**AI modely:**
+- Podporuje Anthropic Claude (3.5 Sonnet, Haiku)
+- Podporuje OpenAI GPT (gpt-4o-mini)
+- Automatický fallback na alternatívne modely pri chybách
+- Retry logika pri preťažení API
+
+---
+
+## Použité technológie
+
+### Backend
+
+- **Python 3.11+** - hlavný jazykový stack
+- **FastAPI** - moderný web framework pre Python
+- **Uvicorn** - ASGI server pre spustenie FastAPI
+- **LangChain** - framework pre prácu s LLM
+  - `langchain` - hlavný framework
+  - `langchain-community` - dodatočné integrácie
+  - `langchain-huggingface` - integrácia s HuggingFace modelmi
+  - `langchain-text-splitters` - rozdelenie textov na chunks
+  - `langchain-anthropic` - integrácia s Anthropic Claude
+  - `langchain-openai` - integrácia s OpenAI GPT
+- **FAISS** (faiss-cpu) - vektorová databáza pre sémantické vyhľadávanie
+- **HuggingFace Embeddings** - model `intfloat/multilingual-e5-small` (384 dimenzie)
+- **LLM cez API:**
+  - Anthropic Claude 3.5 Sonnet/Haiku
+  - OpenAI GPT-4o-mini/GPT-4o
+- **Docling** (>= 2.1.0) - konverzia HTML/PDF → Markdown
+- **Pydantic** - validácia dát pre FastAPI
+- **Dodatočné knižnice:**
+  - `rich` - formátovanie výstupu
+  - `numpy` - matematické operácie
+  - `tqdm` - progress bary
+  - `python-dotenv` - práca s .env súbormi
+  - `sentence-transformers` - embeddings modely
+
+### Frontend
+
+- **HTML5** - štruktúra webového rozhrania
+- **CSS3** - štýlovanie rozhrania
+- **JavaScript (ES6+)** - klientska logika
+- **Marked.js** - renderovanie Markdown (cez CDN)
+
+### DevOps
+
+- **Docker** - kontajnerizácia aplikácie
+- **Docker Compose** - orchestrácia kontajnerov
+- **Shell skripty** - automatizácia procesov
+
+### Spracovanie dát
+
+- **Wget** - sťahovanie HTML/PDF súborov
+- **JSONL formát** - ukladanie normalizovaných dát
+- **Markdown** - medziformát pre spracovanie dokumentov
+
+---
+
+## Štruktúra projektu
 
 ```
 bp2026/
 ├── app.py                      # Hlavný FastAPI server
 ├── requirements.txt            # Python závislosti
-├── urls.txt                    # Список URL для завантаження даних (єдине джерело)
+├── urls.txt                    # Zoznam URL pre sťahovanie dát
 ├── api_keys.env               # API kľúče (lokálne spustenie)
 │
 ├── src/
@@ -147,7 +459,7 @@ bp2026/
 │   │   ├── ask_cli.py         # Hlavná RAG logika
 │   │   └── build_index_e5.py  # Skript na vytvorenie vektorového indexu
 │   └── ingest/
-│       ├── 00_wget.sh         # Sťahovanie dát z webu
+│       ├── 00_wget.sh         # Sťahovanie dát z webových stránok
 │       ├── 10_convert_docling.py  # Konverzia HTML → Markdown
 │       └── 20_normalize_json.py  # Normalizácia → JSONL
 │
@@ -159,8 +471,8 @@ bp2026/
 │   ├── docker-compose.yml     # Docker Compose konfigurácia
 │   ├── start.sh               # Skript na spustenie
 │   ├── stop.sh                # Skript na zastavenie
-│   ├── build-backend.sh       # Zostavenie len backendu
-│   ├── build-frontend.sh      # Zostavenie len frontendu
+│   ├── build-backend.sh       # Zostavenie len backend
+│   ├── build-frontend.sh      # Zostavenie len frontend
 │   └── build-all.sh           # Zostavenie celého projektu
 │
 ├── scripts/
@@ -171,143 +483,34 @@ bp2026/
 └── rag_index/                 # Vektorový index (FAISS)
 ```
 
----
+### Kľúčové súbory a ich úlohy
 
-## 🔧 Skripty a ich funkcie
-
-### Docker skripty
-
-#### `docker/start.sh`
-**Funkcia:** Spustí Docker kontajner s aplikáciou.
-
-**Čo robí:**
-- Kontroluje prítomnosť Docker
-- Vytvára `.env` súbor ak neexistuje
-- Zostavuje Docker obraz ak je potrebné
-- Spúšťa kontajner na porte 8000
-
-**Použitie:**
-```bash
-bash docker/start.sh
-```
+| Súbor | Úloha |
+|-------|-------|
+| `app.py` | FastAPI server, REST API endpoint |
+| `src/rag/ask_cli.py` | RAG logika, sémantické vyhľadávanie, generovanie cez LLM |
+| `src/rag/build_index_e5.py` | Vytvorenie vektorového indexu |
+| `src/ingest/10_convert_docling.py` | HTML → Markdown konverzia |
+| `src/ingest/20_normalize_json.py` | Markdown → JSONL normalizácia |
+| `ui/index.html` | Frontend rozhranie |
+| `scripts/bootstrap.sh` | Automatizácia pipeline |
+| `docker/Dockerfile` | Docker konfigurácia |
+| `docker/docker-compose.yml` | Docker Compose konfigurácia |
 
 ---
 
-#### `docker/stop.sh`
-**Funkcia:** Zastaví a odstráni Docker kontajner.
+## Použitie systému
 
-**Použitie:**
-```bash
-bash docker/stop.sh
-```
+### Cez webové rozhranie
 
----
+1. Otvorte http://localhost:8000 v prehliadači
+2. Zadajte vašu otázku do textového poľa
+3. Kliknite na tlačidlo "Opýtať sa"
+4. Získajte odpoveď so zdrojmi
 
-#### `docker/build-backend.sh`
-**Funkcia:** Zostaví len backend časť (Python kód, RAG logika).
+### Cez API
 
-**Kedy použiť:**
-- Zmenili ste `app.py`, `src/rag/ask_cli.py`, `requirements.txt`
-- Pridali ste nové Python závislosti
-- Zmenili ste RAG logiku
-
-**Použitie:**
-```bash
-bash docker/build-backend.sh
-```
-
----
-
-#### `docker/build-frontend.sh`
-**Funkcia:** Zostaví len frontend časť (HTML súbory).
-
-**Kedy použiť:**
-- Zmenili ste súbory v `ui/` (HTML, CSS, JS)
-- Aktualizovali ste štýly alebo rozhranie
-- Pridali ste nové stránky
-
-**Použitie:**
-```bash
-bash docker/build-frontend.sh
-```
-
----
-
-#### `docker/build-all.sh`
-**Funkcia:** Zostaví celý projekt (backend + frontend).
-
-**Kedy použiť:**
-- Prvá zostava
-- Zmenili ste aj backend aj frontend
-- Chcete úplnú prestavbu
-
-**Použitie:**
-```bash
-bash docker/build-all.sh
-```
-
----
-
-### Data processing skripty
-
-#### `scripts/bootstrap.sh`
-**Funkcia:** Automaticky zostaví vektorový index z dát.
-
-**Čo robí:**
-1. Kontroluje, či je potrebné prestavať index
-2. Odstraňuje nepotrebné súbory z `data_raw` (fonty, statické assety)
-3. Spúšťa konverziu HTML → Markdown (`10_convert_docling.py`)
-4. Spúšťa normalizáciu → JSONL (`20_normalize_json.py`)
-5. Vytvára FAISS index (`build_index_e5.py`)
-
-**Použitie:**
-```bash
-bash scripts/bootstrap.sh
-```
-
----
-
-#### `src/ingest/00_wget.sh`
-**Funkcia:** Sťahuje HTML a PDF súbory z webu podľa `urls.txt`.
-
-**Čo robí:**
-- Číta URL z `urls.txt` (по одному URL на рядок)
-- Používa `wget` na rekurzívne sťahovanie
-- Ukladá súbory do `data_raw/manual/`
-- Ignoruje obrázky, CSS, JS súbory
-- Підтримує HTML, HTM та PDF формати
-
-**Použitie:**
-```bash
-bash src/ingest/00_wget.sh
-```
-
-**💡 Актуалizácia dát:**
-Pre pridanie nových URL jednoducho upravte súbor `urls.txt` - pridajte нові URL по одному на рядок. Potom spustite skript znovu.
-
----
-
-## 🧩 Hlavné funkcie a moduly
-
-### `app.py` - FastAPI Server
-
-**Hlavné funkcie:**
-
-#### `run_ai(q: str) -> str`
-**Funkcia:** Spracováva otázky používateľa a vracia odpoveď z AI.
-
-**Čo robí:**
-- Pokúša sa importovať funkciu `ask` z `src/rag/ask_cli.py`
-- Ak import zlyhá, spúšťa `ask_cli.py` ako subprocess
-- Vracia odpoveď alebo chybovú správu
-
-**Použitie:**
-```python
-answer = run_ai("Ako pomôcť žiakovi s ADHD?")
-```
-
-#### `@app.post("/api/ask")`
-**Funkcia:** REST API endpoint pre odosielanie otázok.
+**Endpoint:** `POST /api/ask`
 
 **Request:**
 ```json
@@ -319,151 +522,113 @@ answer = run_ai("Ako pomôcť žiakovi s ADHD?")
 **Response:**
 ```json
 {
-  "answer": "Odpoveď z AI..."
+  "answer": "Odpoveď z AI s citáciami..."
 }
 ```
 
----
+### Príklad práce systému
 
-### `src/rag/ask_cli.py` - RAG Systém
+Keď používateľ zadá otázku:
 
-**Hlavné funkcie:**
-
-#### `load_api_keys()`
-**Funkcia:** Načíta API kľúče z `api_keys.env` súboru.
-
-**Čo robí:**
-- Číta `api_keys.env` súbor
-- Parsuje riadky vo formáte `KEY=value`
-- Nastavuje environment premenné
-
----
-
-#### `load_url_mapping()`
-**Funkcia:** Načíta mapovanie URL z `urls.txt`.
-
-**Čo robí:**
-- Číta `urls.txt` súbor
-- Vytvára slovník mapovania URL
-- Podporuje viacero kľúčov pre jedno URL
-
-**Vracia:** `dict` - slovník mapovania URL
+1. **Načítanie API kľúčov** z `api_keys.env`
+2. **Načítanie mapovania URL** z `urls.txt`
+3. **Vytvorenie embedding otázky** pomocou multilingual-e5-small modelu
+4. **Vyhľadanie najrelevantnejších dokumentov** v FAISS indexe (sémantické vyhľadávanie, k=20)
+5. **Rozšírenie vyhľadávania** pomocou kľúčových slov (ADHD, matematika, čítanie, atď.)
+6. **Odstránenie duplikátov** dokumentov
+7. **Filtrovanie podľa úrovní podpory** (1-3) cez `level_ok()`
+8. **Výber top-12 najrelevantnejších dokumentov**
+9. **Vytvorenie kontextu** z vybraných dokumentov (chunks do 1000 znakov)
+10. **Nájdenie správnych URL** pre každý dokument cez `resolve_url()`
+11. **Odoslanie systémového promptu + kontextu + otázky** do AI (Claude/GPT)
+12. **Vrátenie štruktúrovanej odpovede** so zdrojmi (číslo, názov, URL)
 
 ---
 
-#### `resolve_url(doc_meta: dict) -> str`
-**Funkcia:** Nájde správny URL na základe metadát dokumentu.
+## Riešenie problémov
 
-**Parametre:**
-- `doc_meta`: Slovník s metadátami dokumentu (obsahuje `url`, `source_file`)
+### Kontajner sa nespúšťa
 
-**Vracia:** `str` - URL dokumentu
-
-**Čo robí:**
-- Skúša nájsť URL z metadát
-- Ak neexistuje, skúša nájsť podľa cesty k súboru
-- Používa `URL_MAP` na mapovanie
-
----
-
-#### `level_ok(meta: dict) -> bool`
-**Funkcia:** Kontroluje, či dokument zodpovedá úrovniam podpory 1-3.
-
-**Parametre:**
-- `meta`: Slovník s metadátami dokumentu
-
-**Vracia:** `bool` - True ak dokument zodpovedá úrovniam 1, 2 alebo 3
-
----
-
-#### `compact(txt: str) -> str`
-**Funkcia:** Komprimuje text odstránením nadbytočných medzier.
-
-**Parametre:**
-- `txt`: Vstupný text
-
-**Vracia:** `str` - Komprimovaný text
-
----
-
-#### `show_error_with_context(error_msg, docs_list)`
-**Funkcia:** Zobrazí chybovú správu spolu s informáciami o nájdených dokumentoch.
-
-**Parametre:**
-- `error_msg`: Text chybovej správy
-- `docs_list`: Zoznam nájdených dokumentov
-
----
-
-### `src/rag/build_index_e5.py` - Vytvorenie vektorového indexu
-
-**Funkcia:** Vytvára FAISS vektorový index z JSONL súborov.
-
-**Čo robí:**
-1. Načíta dokumenty z `data_processed/json/catalog.jsonl`
-2. Rozdelí dokumenty na chunky (veľkosť 1400 znakov, prekrytie 200)
-3. Vytvorí embeddings pomocou `intfloat/multilingual-e5-small`
-4. Uloží FAISS index do `rag_index/faiss_e5/`
-
-**Použitie:**
+**Kontrola logov:**
 ```bash
+cd docker
+docker-compose logs
+```
+
+**Kontrola RAG indexu:**
+```bash
+ls -la rag_index/faiss_e5/
+```
+
+### Chyby s API kľúčmi
+
+**Kontrola `.env` súboru:**
+```bash
+cat docker/.env
+```
+
+**Uistite sa, že:**
+- API kľúče sú správne nastavené
+- Kľúče sú platné a aktívne
+- Máte internetové pripojenie
+
+### Chyby s modelom
+
+**Kontrola názvu modelu:**
+- Pre Anthropic: `claude-3-5-sonnet-20241022` alebo `claude-3-5-haiku-20241022`
+- Pre OpenAI: `gpt-4o-mini` alebo `gpt-4o`
+
+**Uistite sa, že:**
+- Váš API kľúč má prístup k zvolenému modelu
+- Názov modelu je správny
+
+### RAG index neexistuje
+
+**Vytvorenie indexu:**
+```bash
+bash scripts/bootstrap.sh
+```
+
+Alebo manuálne:
+```bash
+python src/ingest/10_convert_docling.py
+python src/ingest/20_normalize_json.py
 python src/rag/build_index_e5.py
 ```
 
----
+### Port 8000 je obsadený
 
-### `src/ingest/10_convert_docling.py` - Konverzia HTML → Markdown
+**Zmena portu v `docker-compose.yml`:**
+```yaml
+ports:
+  - "8001:8000"  # Namiesto 8000:8000
+```
 
-**Funkcia:** Konvertuje HTML súbory na Markdown pomocou Docling.
+### Docker-compose: command not found
 
-**Čo robí:**
-1. Nájde všetky HTML súbory v `data_raw/`
-2. Konvertuje ich na Markdown pomocou Docling
-3. Uloží Markdown súbory do `data_processed/md/`
-4. Zachováva štruktúru adresárov
-
-**Použitie:**
+**Pre nový Docker:**
 ```bash
-python src/ingest/10_convert_docling.py
+docker compose build  # Bez pomlčky
+docker compose up -d
+```
+
+**Alebo inštalácia docker-compose:**
+```bash
+sudo apt-get install docker-compose
 ```
 
 ---
 
-### `src/ingest/20_normalize_json.py` - Normalizácia do JSONL
-
-**Funkcia:** Normalizuje Markdown súbory do JSONL formátu pre RAG systém.
-
-**Čo robí:**
-1. Načíta všetky Markdown súbory z `data_processed/md/`
-2. Extrahuje nadpis a sekcie
-3. Určuje úrovne podpory (1, 2, 3)
-4. Hádže URL na základe cesty k súboru
-5. Uloží normalizované dáta do `data_processed/json/catalog.jsonl`
-
-**Hlavné funkcie:**
-
-- `clean_text(text: str) -> str` - Čistí text od nepotrebných znakov
-- `extract_title_and_sections(md_text: str)` - Extrahuje nadpis a sekcie
-- `infer_levels(md_text: str)` - Určuje úrovne podpory z textu
-- `guess_url_hint(md_path: Path)` - Hádže URL na základe cesty
-
-**Použitie:**
-```bash
-python src/ingest/20_normalize_json.py
-```
-
----
-
-## 🐳 Docker konfigurácia
+## Docker konfigurácia
 
 ### Multi-stage build
 
 Dockerfile používa multi-stage build s týmito targets:
 
-1. **`builder`** - Inštaluje Python závislosti
-2. **`backend`** - Kopíruje backend kód a závislosti
-3. **`frontend`** - Kopíruje len súbory z `ui/`
-4. **`final`** - Spája backend + frontend
+1. **`builder`** - inštaluje Python závislosti
+2. **`backend`** - kopíruje backend kód a závislosti
+3. **`frontend`** - kopíruje len súbory z `ui/`
+4. **`final`** - spája backend + frontend
 
 ### Čo je zahrnuté v Docker obraze
 
@@ -502,93 +667,92 @@ docker-compose down
 docker-compose restart
 ```
 
----
+### Docker skripty
 
-## 🔍 Riešenie problémov
+#### `docker/start.sh`
+**Funkcia:** Spustí Docker kontajner s aplikáciou.
 
-### Kontajner sa nespúšťa
+**Čo robí:**
+- Kontroluje prítomnosť Docker
+- Vytvára `.env` súbor ak neexistuje
+- Zostavuje Docker obraz ak je potrebné
+- Spúšťa kontajner na porte 8000
 
-**Kontrola logov:**
+**Použitie:**
 ```bash
-cd docker
-docker-compose logs
+bash docker/start.sh
 ```
 
-**Kontrola RAG indexu:**
+#### `docker/stop.sh`
+**Funkcia:** Zastaví a odstráni Docker kontajner.
+
+**Použitie:**
 ```bash
-ls -la rag_index/faiss_e5/
+bash docker/stop.sh
 ```
 
----
+#### `docker/build-backend.sh`
+**Funkcia:** Zostaví len backend časť (Python kód, RAG logika).
 
-### Chyby s API kľúčmi
+**Kedy použiť:**
+- Zmenili ste `app.py`, `src/rag/ask_cli.py`, `requirements.txt`
+- Pridali ste nové Python závislosti
+- Zmenili ste RAG logiku
 
-**Kontrola `.env` súboru:**
+**Použitie:**
 ```bash
-cat docker/.env
+bash docker/build-backend.sh
 ```
 
-**Uistite sa, že:**
-- API kľúče sú správne nastavené
-- Kľúče sú platné a aktívne
-- Máte internetové pripojenie
+#### `docker/build-frontend.sh`
+**Funkcia:** Zostaví len frontend časť (HTML súbory).
 
----
+**Kedy použiť:**
+- Zmenili ste súbory v `ui/` (HTML, CSS, JS)
+- Aktualizovali ste štýly alebo rozhranie
+- Pridali ste nové stránky
 
-### Chyby s modelom
-
-**Kontrola názvu modelu:**
-- Pre Anthropic: `claude-3-5-sonnet-20241022` alebo `claude-3-5-haiku-20241022`
-- Pre OpenAI: `gpt-4o-mini` alebo `gpt-4o`
-
-**Uistite sa, že:**
-- Váš API kľúč má prístup k zvolenému modelu
-- Názov modelu je správny
-
----
-
-### RAG index neexistuje
-
-**Vytvorenie indexu:**
+**Použitie:**
 ```bash
-bash scripts/bootstrap.sh
+bash docker/build-frontend.sh
 ```
 
-Alebo manuálne:
+#### `docker/build-all.sh`
+**Funkcia:** Zostaví celý projekt (backend + frontend).
+
+**Kedy použiť:**
+- Prvá zostava
+- Zmenili ste aj backend aj frontend
+- Chcete úplnú prestavbu
+
+**Použitie:**
 ```bash
-python src/ingest/10_convert_docling.py
-python src/ingest/20_normalize_json.py
-python src/rag/build_index_e5.py
-```
-
----
-
-### Port 8000 je obsadený
-
-**Zmena portu v `docker-compose.yml`:**
-```yaml
-ports:
-  - "8001:8000"  # Namiesto 8000:8000
+bash docker/build-all.sh
 ```
 
 ---
 
-### Docker-compose: command not found
+## Metriky a charakteristiky systému
 
-**Pre nový Docker:**
-```bash
-docker compose build  # Bez pomlčky
-docker compose up -d
-```
+### Technické parametre
 
-**Alebo inštalácia docker-compose:**
-```bash
-sudo apt-get install docker-compose
-```
+- **Embeddings model:** multilingual-e5-small (384 dimenzie)
+- **Veľkosť chunk:** 1400 znakov
+- **Prekrytie chunks:** 200 znakov
+- **Top dokumentov:** 20 → filtrovanie → 12
+- **LLM timeout:** 120 sekúnd
+- **Čas odozvy API:** ~5-15 sekúnd (závisí od LLM)
+
+### Architektonické riešenia
+
+- Multi-stage Docker build
+- REST API architektúra
+- Modulárna štruktúra kódu
+- Rozdelenie spracovania dát a runtime
 
 ---
 
-## 📝 Poznámky
+## Dôležité poznámky
 
 - **RAG Index**: Uistite sa, že `rag_index/faiss_e5/` obsahuje zostavený index pred spustením kontajnera.
 - **API Kľúče**: Nikdy nekomitujte `api_keys.env` alebo `docker/.env` do Git repozitára.
@@ -597,13 +761,18 @@ sudo apt-get install docker-compose
 
 ---
 
-## 📚 Ďalšie zdroje
+## Ďalšie zdroje
 
 - FastAPI dokumentácia: https://fastapi.tiangolo.com/
 - LangChain dokumentácia: https://python.langchain.com/
 - Docker dokumentácia: https://docs.docker.com/
+- FAISS dokumentácia: https://github.com/facebookresearch/faiss
+- HuggingFace: https://huggingface.co/
+- Anthropic Claude: https://docs.anthropic.com/
+- OpenAI: https://platform.openai.com/docs
 
 ---
 
 **Autor:** BP2026 Team  
-**Verzia:** 1.0
+**Verzia:** 1.0  
+**Dátum:** 2024
