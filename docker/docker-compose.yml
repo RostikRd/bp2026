@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   bp2026:
     build:

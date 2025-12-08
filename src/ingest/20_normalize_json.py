@@ -143,7 +143,7 @@ for p in MD_DIR.rglob("*.md"):
     
     # Špeciálna úprava pre katalog.md
     if "katalog.md" in p.as_posix() or p.name == "katalog.md":
-        title = "Kniha katalóg podporných opatrení"
+        title = "Katalóg podporných opatrení. 2. vydanie. Bratislava: Národný inštitút vzdelávania a mládeže, 2024. Schválené Ministerstvom školstva, výskumu, vývoja a mládeže Slovenskej republiky pod číslom 2024/17370:1‑E1660, s platnosťou od 1. septembra 2024."
     
     if len(sections) < 1:
         continue
