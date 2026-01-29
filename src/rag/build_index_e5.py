@@ -1,4 +1,3 @@
-# Build vector index for RAG system
 import os, json
 from pathlib import Path
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -11,7 +10,6 @@ PERSIST = Path("rag_index/faiss_e5"); PERSIST.mkdir(parents=True, exist_ok=True)
 
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "intfloat/multilingual-e5-small")
 
-# Load and prepare documents
 items = [json.loads(l) for l in JSONL.read_text(encoding="utf-8").splitlines()]
 docs = []
 for it in items:
@@ -28,11 +26,9 @@ for it in items:
     }
     docs.append(Document(page_content=full, metadata=meta))
 
-# Split into chunks
 splitter = RecursiveCharacterTextSplitter(chunk_size=1400, chunk_overlap=200)
 chunks = splitter.split_documents(docs)
 
-# Create embeddings and index
 embedder = HuggingFaceEmbeddings(
     model_name=EMBED_MODEL,
     encode_kwargs={"normalize_embeddings": True},
@@ -40,4 +36,3 @@ embedder = HuggingFaceEmbeddings(
 
 vs = FAISS.from_documents(chunks, embedder)
 vs.save_local(str(PERSIST))
-print(f"✓ FAISS index at {PERSIST} using {EMBED_MODEL}")

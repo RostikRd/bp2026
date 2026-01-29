@@ -1,4 +1,3 @@
-# Normalize Markdown files to JSON for RAG system
 import re, json, hashlib, os
 from pathlib import Path
 
@@ -8,8 +7,8 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 URLS_FILE = Path("urls.txt")
 
+# Loads URL mapping from urls.txt (base filename or path -> full URL).
 def load_url_map():
-    """Load URL mapping from file"""
     m = {}
     if URLS_FILE.exists():
         for ln in URLS_FILE.read_text(encoding="utf-8").splitlines():
@@ -22,8 +21,8 @@ def load_url_map():
 
 URL_MAP = load_url_map()
 
+# Normalizes text: collapses whitespace, strips HTML-like tags, keeps allowed letters/punctuation.
 def clean_text(text: str) -> str:
-    """Clean text from garbage and extra characters"""
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r'<[^>]+>', '', text)
     text = re.sub(r'[^\w\s\.,!?;:\-\(\)\[\]\"\'áčďéíľĺňóôŕšťúýžÁČĎÉÍĽĹŇÓÔŔŠŤÚÝŽ]', '', text)
@@ -62,15 +61,15 @@ def extract_title_and_sections(md_text: str):
     
     return title or "Bez názvu", sections
 
+# Infers support levels (1, 2, 3) from markdown text using regex and keyword heuristics (e.g. všeobecné -> 1, cielené -> 2, špecifické -> 3).
 def infer_levels(md_text: str):
-    """Determine support levels from text"""
     patterns = [
         r"[Uu]roveň\s*(?:podpory)?\s*(\d)",
         r"úroveň\s*(\d)",
         r"level\s*(\d)",
         r"PO\s*(\d)",
         r"podporné\s+opatrenie\s*(\d)",
-        r"1\.(\d)",  # 1.1, 1.2, 1.3 - витягне 1, 2, 3
+        r"1\.(\d)",
     ]
     
     levels = set()
@@ -98,35 +97,32 @@ def infer_levels(md_text: str):
         levels.add(3)
     
     if not levels:
-        # Рівень 1 - všeobecné/základné/univerzálne
         if any(word in text_lower for word in ['všeobecné', 'základné', 'univerzálne']):
             levels.add(1)
-        # Rівень 2 - cielené (ale не špecializované)
         if any(word in text_lower for word in ['cielené', 'cieľové']) and 'špecializované' not in text_lower:
             levels.add(2)
-        # Rівень 3 - špecifické podporné opatrenia / špecializované
         if any(phrase in text_lower for phrase in ['špecifické podporné opatrenia', 'špecializované', 'špeciálne']):
             levels.add(3)
-        # Якщо є "individuálne" але без інших маркерів - може бути рівень 2 або 3
         if 'individuálne' in text_lower and not levels:
-            levels.add(2) 
-    
+            levels.add(2)
     return sorted(levels) if levels else [1]
 
+# Returns a canonical URL for a markdown file from path (podporneopatrenia domain) or from URL_MAP.
 def guess_url_hint(md_path: Path):
-    """Determine URL based on file path"""
+    if md_path.name == "katalog.md" or "katalog.md" in md_path.as_posix():
+        return "https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/"
+
     parts = md_path.parts
     if "podporneopatrenia.minedu.sk" in parts:
         i = parts.index("podporneopatrenia.minedu.sk")
         tail = "/".join(parts[i+1:])
-        return "https://podporneopatrenia.minedu.sk/" + tail.replace(".md",".html")
-    
+        return "https://podporneopatrenia.minedu.sk/" + tail.replace(".md", ".html").replace("/index", "")
+
     name = md_path.name[:-3] if md_path.name.endswith(".md") else md_path.name
     if name in URL_MAP:
         return URL_MAP[name]
     return ""
 
-# Process all Markdown files
 items = []
 for p in MD_DIR.rglob("*.md"):
     md = p.read_text(encoding="utf-8", errors="ignore")
@@ -140,8 +136,6 @@ for p in MD_DIR.rglob("*.md"):
         continue
     
     title, sections = extract_title_and_sections(md)
-    
-    # Špeciálna úprava pre katalog.md
     if "katalog.md" in p.as_posix() or p.name == "katalog.md":
         title = "Katalóg podporných opatrení. 2. vydanie. Bratislava: Národný inštitút vzdelávania a mládeže, 2024. Schválené Ministerstvom školstva, výskumu, vývoja a mládeže Slovenskej republiky pod číslom 2024/17370:1‑E1660, s platnosťou od 1. septembra 2024."
     
@@ -159,9 +153,5 @@ for p in MD_DIR.rglob("*.md"):
         "url_hint": url_hint
     })
 
-# Save result
 outp = OUT_DIR / "catalog.jsonl"
 outp.write_text("\n".join(json.dumps(x, ensure_ascii=False) for x in items), encoding="utf-8")
-print(f"✓ Normalized {len(items)} documents → {outp}")
-missing = sum(1 for x in items if not x["url_hint"])
-print(f"⚠ Missing URL for {missing} docs")

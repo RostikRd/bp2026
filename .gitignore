@@ -76,3 +76,5 @@ docker/*.log
 *.temp
 
 README.md
+
+FEESBACK_ANALYSIS.md

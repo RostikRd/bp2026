@@ -222,6 +222,62 @@ textarea::placeholder {
   margin-top: 1rem;
 }
 
+.query-tips {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.query-tips summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent-primary);
+  list-style: none;
+  user-select: none;
+}
+
+.query-tips summary::-webkit-details-marker {
+  display: none;
+}
+
+.query-tips summary::before {
+  content: '▶ ';
+  font-size: 0.7em;
+  opacity: 0.8;
+}
+
+.query-tips[open] summary::before {
+  content: '▼ ';
+}
+
+.query-tips-content {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.query-tips-content p {
+  margin-bottom: 0.75rem;
+}
+
+.query-tips-content ul {
+  margin: 0.5rem 0 1rem 1.25rem;
+  padding: 0;
+}
+
+.query-tips-content li {
+  margin: 0.35rem 0;
+}
+
+.query-tips-content em {
+  color: var(--text-primary);
+  font-style: italic;
+}
+
 button:not(.nav-button) {
   flex: 1;
   padding: 0.875rem 2rem;

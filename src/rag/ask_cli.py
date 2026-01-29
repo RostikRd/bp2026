@@ -7,9 +7,18 @@ from pathlib import Path
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent.parent
+if not (_PROJECT_ROOT / "rag_index").exists():
+    _PROJECT_ROOT = Path(os.getcwd())
+    for _ in range(5):
+        if (_PROJECT_ROOT / "rag_index").exists():
+            break
+        _PROJECT_ROOT = _PROJECT_ROOT.parent
+
+# Loads API keys from api_keys.env into os.environ (for local runs).
 def load_api_keys():
-    # Спочатку перевіряємо api_keys.env (для локального запуску)
-    env_file = Path("api_keys.env")
+    env_file = _PROJECT_ROOT / "api_keys.env"
     if env_file.exists():
         for line in env_file.read_text().splitlines():
             if line.strip() and not line.startswith("#"):
@@ -18,16 +27,27 @@ def load_api_keys():
                     os.environ[key.strip()] = value.strip()
                 except ValueError:
                     continue
-    # Змінні середовища з Docker .env файлу вже завантажені через env_file в docker-compose.yml
 
+# Strips trailing .html or .html/ from a URL string.
+def clean_url(url: str) -> str:
+    if not url:
+        return url
+    if url.endswith(".html/"):
+        url = url[:-6]
+    elif url.endswith(".html"):
+        url = url[:-5]
+    return url
+
+# Loads URL mapping from urls.txt (path keys -> canonical URLs) and applies clean_url.
 def load_url_mapping():
-    urls_file = Path("urls.txt")
+    urls_file = _PROJECT_ROOT / "urls.txt"
     url_map = {}
     if urls_file.exists():
         for line in urls_file.read_text(encoding="utf-8").splitlines():
             url = line.strip()
             if not url or url.startswith("#"):
                 continue
+            url = clean_url(url)
             url_key = url.rstrip("/").split("/")[-1]
             if url_key and url_key not in url_map:
                 url_map[url_key] = url
@@ -41,10 +61,12 @@ def load_url_mapping():
 
 URL_MAP = load_url_mapping()
 
+# Resolves document metadata (url, source_file) to a canonical URL using URL_MAP and path heuristics.
 def resolve_url(doc_meta: dict) -> str:
     existing_url = doc_meta.get("url", "").strip()
     if existing_url and existing_url.startswith("https://"):
         existing_url = existing_url.replace("/index.html", "").replace("/index.htm", "")
+        existing_url = clean_url(existing_url)
         if not existing_url.endswith("/") and "podporneopatrenia.minedu.sk" in existing_url:
             existing_url += "/"
         return existing_url
@@ -67,23 +89,23 @@ def resolve_url(doc_meta: dict) -> str:
         
         path_key = "/".join(clean_parts)
         if path_key in URL_MAP:
-            return URL_MAP[path_key]
+            return clean_url(URL_MAP[path_key])
         
         if clean_parts:
             first_part = clean_parts[0]
             if first_part in URL_MAP:
-                return URL_MAP[first_part]
+                return clean_url(URL_MAP[first_part])
     
     file_name = source_path.name.replace(".md", "").replace(".html", "")
     if file_name and file_name != "index":
         if file_name in URL_MAP:
-            return URL_MAP[file_name]
+            return clean_url(URL_MAP[file_name])
     
     for part in reversed(parts):
         part_clean = part.replace(".md", "").replace(".html", "")
         if part_clean and part_clean != "index":
             if part_clean in URL_MAP:
-                return URL_MAP[part_clean]
+                return clean_url(URL_MAP[part_clean])
     
     if "podporneopatrenia.minedu.sk" in parts:
         idx = parts.index("podporneopatrenia.minedu.sk")
@@ -92,29 +114,33 @@ def resolve_url(doc_meta: dict) -> str:
         if clean_parts:
             constructed_path = "/".join(clean_parts)
             if constructed_path in URL_MAP:
-                return URL_MAP[constructed_path]
+                return clean_url(URL_MAP[constructed_path])
             constructed = f"https://podporneopatrenia.minedu.sk/{constructed_path}/"
             for url in URL_MAP.values():
                 if constructed_path in url:
-                    return url
-            return constructed
+                    return clean_url(url)
+            return clean_url(constructed)
     
     return existing_url
 
-# Ініціалізація при імпорті (тільки завантаження, без виконання)
 load_api_keys()
 
-PERSIST = "rag_index/faiss_e5"
+PERSIST = str(_PROJECT_ROOT / "rag_index" / "faiss_e5")
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "intfloat/multilingual-e5-small")
 
-# Глобальні змінні для кешування embeddings та vectorstore
 _embedder = None
 _vs = None
 
+# Lazy-loads and returns the FAISS vector store (and embeddings) from PERSIST.
 def get_vectorstore():
-    """Ленива ініціалізація vectorstore"""
     global _embedder, _vs
     if _vs is None:
+        if not Path(PERSIST).exists():
+            raise FileNotFoundError(
+                f"RAG index neexistuje: {PERSIST}\n"
+                "Najprv zostavte index z koreňa projektu: bash scripts/bootstrap.sh\n"
+                "Alebo: python src/ingest/10_convert_docling.py && python src/ingest/20_normalize_json.py && python src/rag/build_index_e5.py"
+            )
         if _embedder is None:
             _embedder = HuggingFaceEmbeddings(
                 model_name=EMBED_MODEL,
@@ -123,34 +149,41 @@ def get_vectorstore():
         _vs = FAISS.load_local(PERSIST, embeddings=_embedder, allow_dangerous_deserialization=True)
     return _vs
 
+# Returns True if document metadata has support level 1, 2 or 3 (or no level).
 def level_ok(meta: dict) -> bool:
     lv = (meta or {}).get("levels", "")
     if not lv:
         return True
     return any(x in lv for x in ["1", "2", "3"])
 
+# Collapses whitespace in text to single spaces and strips leading/trailing.
 def compact(txt: str) -> str:
     return re.sub(r"\s+", " ", txt).strip()
 
+# Raises RuntimeError with the given message (used when AI or API fails).
 def show_error_with_context(error_msg, docs_list):
-    print(f"❌ ERROR: {error_msg}", file=sys.stderr)
-    print("\n⚠️  Failed to get response from AI model.", file=sys.stderr)
-    print(f"📄 Found {len(docs_list)} relevant documents:", file=sys.stderr)
-    for i, d in enumerate(docs_list[:5], 1):
-        title = d.metadata.get("title", "Untitled")
-        print(f"   [{i}] {title}", file=sys.stderr)
-    print("\nCheck:", file=sys.stderr)
-    print("  1. Whether ANTHROPIC_API_KEY is correctly set in api_keys.env", file=sys.stderr)
-    print("  2. Whether internet is available", file=sys.stderr)
-    print("  3. Whether API key is active", file=sys.stderr)
     raise RuntimeError(error_msg)
 
+MAX_L2_DISTANCE = 0.92
+TOP_DOCS_MAX = 12
+
+
+# Main RAG entry: retrieves relevant docs, builds context, calls LLM (Anthropic/OpenAI), appends sources section and returns full answer.
 def ask(query: str) -> str:
-    """Основна функція для обробки запитів"""
     vs = get_vectorstore()
-    
-    docs_all = vs.similarity_search(query, k=20)
-    
+
+   
+    docs_with_scores = vs.similarity_search_with_score(query, k=25)
+    doc_to_score = {}
+    for doc, score in docs_with_scores:
+        doc_id = doc.metadata.get("source_file", "") + str(doc.page_content[:100])
+        if doc_id not in doc_to_score or score < doc_to_score[doc_id]:
+            doc_to_score[doc_id] = (score, doc)
+
+    docs_all = []
+    for doc_id, (score, doc) in doc_to_score.items():
+        docs_all.append((doc, score))
+
     keywords = []
     query_lower = query.lower()
     
@@ -211,81 +244,119 @@ def ask(query: str) -> str:
     for keyword in keywords[:5]:
         try:
             keyword_docs = vs.similarity_search(keyword, k=5)
-            docs_all.extend(keyword_docs)
-        except:
+            for doc in keyword_docs:
+                doc_id = doc.metadata.get("source_file", "") + str(doc.page_content[:100])
+                if doc_id not in doc_to_score:
+                    doc_to_score[doc_id] = (1.0, doc)
+                    docs_all.append((doc, 1.0))
+        except Exception:
             continue
-    
+
     seen_ids = set()
-    unique_docs = []
-    for doc in docs_all:
+    unique_scored = []
+    for doc, score in docs_all:
         doc_id = doc.metadata.get("source_file", "") + str(doc.page_content[:100])
         if doc_id not in seen_ids:
             seen_ids.add(doc_id)
-            unique_docs.append(doc)
-    
-    docs_all = unique_docs
-    
-    docs_filtered = [d for d in docs_all if level_ok(d.metadata)]
-    docs = docs_filtered[:12] if docs_filtered else docs_all[:12]
+            unique_scored.append((doc, score))
+
+    unique_scored.sort(key=lambda x: x[1])
+    docs_filtered = [(d, s) for d, s in unique_scored if level_ok(d.metadata) and s <= MAX_L2_DISTANCE]
+    if not docs_filtered:
+        docs_filtered = [(d, s) for d, s in unique_scored if level_ok(d.metadata)]
+    docs_with_scores_final = docs_filtered[:TOP_DOCS_MAX] if docs_filtered else unique_scored[:TOP_DOCS_MAX]
+    docs = [d for d, _ in docs_with_scores_final]
     
     context_blocks = []
     sources_info = []
     for i, d in enumerate(docs, 1):
         title = d.metadata.get("title", "") or ""
-        # Замінюємо стару назву на нову (для сумісності зі старими індексами)
         if title == "Kniha katalóg podporných opatrení":
             title = "Katalóg podporných opatrení. 2. vydanie. Bratislava: Národný inštitút vzdelávania a mládeže, 2024. Schválené Ministerstvom školstva, výskumu, vývoja a mládeže Slovenskej republiky pod číslom 2024/17370:1‑E1660, s platnosťou od 1. septembra 2024."
+        if not title:
+            title = d.metadata.get("source_file", "").split("/")[-1] or f"Dokument {i}"
         url = resolve_url(d.metadata)
         snippet = compact(d.page_content)[:1000]
         context_blocks.append(f"[{i}] {title}\n---\n{snippet}")
         sources_info.append({"num": i, "title": title, "url": url})
     
+    if not sources_info:
+        sources_info.append({"num": 1, "title": "Katalóg podporných opatrení", "url": "https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/"})
+
     context = "\n\n".join(context_blocks)
     
     system_prompt = """Si expertný asistent špeciálneho pedagóga na Slovensku s hlbokými znalosťami o podporných opatreniach a inkluzívnom vzdelávaní.
 
 Tvoja úloha: Poskytovať konkrétne, praktické a realizovateľné riešenia na základe oficiálnych dokumentov.
 
+KRÍTICKY DÔLEŽITÉ - VYSVETLITEĽNOSŤ A ODKAZY:
+1. PRE KAŽDÉ OPATRENIE MUSÍŠ UVIESŤ "Prečo toto opatrenie:" s 2-3 vetami:
+   - Akú konkrétnu potrebu žiaka rieši
+   - Prečo je toto opatrenie vhodné pre danú situáciu
+   - Odkaz na dokument [N] z ktorého toto opatrenie pochádza
+2. PRI KAŽDEJ ČINNOSTI MUSÍŠ UVIESŤ ODKAZ [N] na dokument:
+   - Ak navrhuješ niečo z dokumentu [1], napíš [1]
+   - Ak kombinuješ z [2] a [3], napíš [2], [3]
+   - BEZ ODKAZOV [N] NEPÍŠ ŽIADNE OPATRENIA
+3. Vždy zdôvodni výber opatrenia – prečo práve toto, nie iné
+
 ANALYTICKÝ PRÍSTUP:
-1. Najprv analyzuj problém v otázke
-2. Identifikuj kľúčové potreby žiaka/dieťaťa
-3. Vyber najrelevantnejšie opatrenia z dokumentov
-4. Navrhni konkrétne kroky pre realizáciu
+1. Analyzuj problém v otázke a identifikuj kľúčové potreby žiaka.
+2. Pre každú potrebu nájdi relevantné opatrenia v dokumentoch [1], [2], [3]...
+3. Pre každé opatrenie vysvetli PREČO je vhodné (2-3 vety) a uveď odkaz [N].
 
 FORMÁT ODPOVEDE:
 ## 🎯 Analýza problému
 - Stručný popis identifikovaného problému
 - Kľúčové potreby žiaka
 
-## 📋 Konkrétne opatrenia na zajtra
+## 📋 Konkrétne opatrenia
+
+### [Názov opatrenia alebo kategórie]
+**Prečo toto opatrenie:**
+- 2-3 vety vysvetľujúce akú potrebu rieši a prečo je vhodné
+- Odkaz na dokument [N] z ktorého pochádza
+
+**Realizácia:**
+- [Učiteľ] Konkrétna činnosť s odkazom [N]
+- [Asistent] Konkrétna úloha s odkazom [N]
+- [Škola] Organizačné opatrenie s odkazom [N]
+
 ### Pre učiteľa:
-- [Učiteľ] Konkrétna činnosť s presným popisom
-- [Učiteľ] Ďalšia činnosť...
+- [Učiteľ] Činnosť – odkaz [N] (napr. "Podľa [1] a [3]...")
 
 ### Pre asistenta pedagóga:
-- [Asistent] Špecifická úloha s detajlami
-- [Asistent] Ďalšia úloha...
+- [Asistent] Úloha – odkaz [N]
 
 ### Pre školu/vedenie:
-- [Škola] Organizačné opatrenie
-- [Škola] Ďalšie opatrenie...
+- [Škola] Opatrenie – odkaz [N]
 
-## ⚖️ Úpravy hodnotenia (ak relevantné)
-- Konkrétne spôsoby hodnotenia
-- Adaptácie pre žiaka
+## Úpravy hodnotenia (ak relevantné)
+- Konkrétne spôsoby hodnotenia s odôvodnením a odkazmi [N]
 
 PRAVIDLÁ:
-- Buď maximálne konkrétny a praktický
+- VŽDY používaj odkazy [1], [2], [3]... pri každom opatrení a činnosti
+- VŽDY vysvetli "Prečo toto opatrenie" (2-3 vety) pre každé opatrenie
 - Odpovedaj VÝLUČNE na základe poskytnutých dokumentov
+- Používaj len NAJRELEVANTNEJŠIE dokumenty – nie всі, len tie ktoré skutočne potrebuješ (zvyčajne 3-7)
 - Ak informácie chýbajú, napíš "Potrebné doplniť z odborných zdrojov"
 - Používaj slovenský jazyk
-- Zameraj sa na realizovateľné riešenia
-- NEUVÁDZAJ zdroje v texte - budú pridané automaticky"""
+- NEUVÁDZAJ zoznam zdrojov ani URL – zdroje sa doplnia automaticky na konci
+- NEUVÁDZAJ zákony, legislatívu ani odkazy na slov-lex – odpoveď len z dokumentov podporných opatrení
+- DÔLEŽITÉ: Odpoveď musí byť úplná – nepíš "..." або обрізай текст, vždy dokonči všetky sekcie"""
 
+    # Формуємо список доступних документів для моделі
+    available_docs = "\n".join([f"[{s['num']}] {s['title']}" for s in sources_info])
+    
     user_prompt = f"""Otázka: {query}
 
-Kontekst:
+Dostupné dokumenty (používaj ich čísla v odkazoch [N]):
+{available_docs}
+
+Kontekst z dokumentov:
 {context}
+
+DÔLEŽITÉ: Pri každom opatrení a činnosti MUSÍŠ uviest odkaz na dokument [N] z ktorého informácia pochádza. Napríklad: "Podľa [1] a [3]..." alebo "Toto opatrenie je opísané v [2]...".
 """
     
     ANTHROPIC = os.environ.get("ANTHROPIC_API_KEY", "").strip()
@@ -338,9 +409,9 @@ Kontekst:
             for model_to_try in model_options:
                 try:
                     llm = ChatAnthropic(
-                        model=model_to_try, 
-                        temperature=0, 
-                        max_tokens=600,
+                        model=model_to_try,
+                        temperature=0,
+                        max_tokens=2000,  
                         api_key=ANTHROPIC
                     )
                     attempts = 4
@@ -407,25 +478,90 @@ Kontekst:
     else:
         show_error_with_context("API keys not found. Add ANTHROPIC_API_KEY or OPENAI_API_KEY to api_keys.env", docs)
     
-    # Додаємо джерела
-    result_parts.append("\n## 📚 Zdroje\n")
-    for source in sources_info:
-        if source["url"]:
-            result_parts.append(f"- [{source['num']}] {source['title']} — {source['url']}")
-        else:
-            result_parts.append(f"- [{source['num']}] {source['title']}")
+    model_answer = "\n".join(result_parts) if result_parts else ""
+
+    if not sources_info:
+        sources_info.append({"num": 1, "title": "Katalóg podporných opatrení", "url": "https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/"})
+
+    # Extracts document numbers [1], [2], [3]... cited in the answer text (before Zdroje section).
+    def extract_used_source_numbers(answer_text: str) -> set:
+        import re
+        zdroje_start = answer_text.find("## 📚 Zdroje")
+        if zdroje_start != -1:
+            answer_text = answer_text[:zdroje_start]
+        matches = re.findall(r'\[(\d+)\]', answer_text)
+        used_numbers = set()
+        for match in matches:
+            try:
+                num = int(match)
+                if 1 <= num <= len(sources_info):
+                    used_numbers.add(num)
+            except ValueError:
+                continue
+        return used_numbers
+
+    used_source_numbers = extract_used_source_numbers(model_answer)
+    used_sources = [s for s in sources_info if s["num"] in used_source_numbers]
+    if used_sources:
+        used_sources.sort(key=lambda x: x["num"])
     
-    return "\n".join(result_parts)
+    result_parts.append("\n## 📚 Zdroje\n")
+    result_parts.append("### 📄 Dokumenty podporných opatrení\n")
+
+    sources_added = False
+    if used_sources:
+        for source in used_sources:
+            if source.get("url"):
+                result_parts.append(f"- **[{source['num']}]** {source['title']}  \n  🔗 {source['url']}")
+            else:
+                result_parts.append(f"- **[{source['num']}]** {source['title']}")
+            sources_added = True
+    elif sources_info:
+        seen_urls_fallback = set()
+        unique_fallback_sources = []
+        for source in sources_info:
+            url = source.get("url", "").strip()
+            if url and url in seen_urls_fallback:
+                continue
+            unique_fallback_sources.append(source)
+            if url:
+                seen_urls_fallback.add(url)
+        for source in unique_fallback_sources:
+            if source.get("url"):
+                result_parts.append(f"- **[{source['num']}]** {source['title']}  \n  🔗 {source['url']}")
+            else:
+                result_parts.append(f"- **[{source['num']}]** {source['title']}")
+            sources_added = True
+
+    if not sources_added:
+        result_parts.append("- *Zdroje sa pripravujú...*")
+
+    final_result = "\n".join(result_parts)
+
+    if "## 📚 Zdroje" not in final_result:
+        final_result += "\n## 📚 Zdroje\n"
+        final_result += "### 📄 Dokumenty podporných opatrení\n"
+        
+        if sources_info:
+            for source in sources_info:
+                if source.get("url"):
+                    final_result += f"- **[{source['num']}]** {source['title']}  \n  🔗 {source['url']}\n"
+                else:
+                    final_result += f"- **[{source['num']}]** {source['title']}\n"
+        else:
+            final_result += "- *Zdroje sa pripravujú...*\n"
+
+    if "## 📚 Zdroje" not in final_result:
+        final_result = final_result.rstrip() + "\n\n## 📚 Zdroje\n### 📄 Dokumenty podporných opatrení\n- *Kontaktujte administrátora systému*\n"
+    
+    return final_result
 
 
-# Код для прямого запуску скрипта
 if __name__ == "__main__":
     query = " ".join(sys.argv[1:]).strip() or \
         "Žiak s ADHD nevydrží 10 minút sústredenia – čo odporúčate na úrovni 1–3?"
-    
     try:
         result = ask(query)
         print(result)
     except Exception as e:
-        print(f"❌ ERROR: {e}", file=sys.stderr)
         sys.exit(1)

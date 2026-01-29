@@ -15,9 +15,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Копіюємо requirements.txt та встановлюємо залежності
-# Важливо: COPY requirements.txt окремо для кращого кешування Docker
+# COPY окремо = Docker не перезапускає pip install, якщо requirements.txt не змінився
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Кеш pip між збірками (BuildKit): при зміні requirements не перекачуємо все заново
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --user -r requirements.txt
 
 # ============================================
 # Stage 2: Backend - тільки функціональна частина
