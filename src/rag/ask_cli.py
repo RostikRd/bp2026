@@ -3,6 +3,7 @@ import re
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -27,6 +28,102 @@ def load_api_keys():
                     os.environ[key.strip()] = value.strip()
                 except ValueError:
                     continue
+
+# Returns hostname (site name) from URL for display, e.g. "www.minedu.sk" -> "minedu.sk".
+def url_to_site_name(url: str) -> str:
+    if not url or not url.strip():
+        return url
+    try:
+        netloc = urlparse(url.strip()).netloc
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        return netloc or url.strip()
+    except Exception:
+        return url.strip()
+
+
+# Returns short 2-word description of page content from title, or from URL path if title empty.
+def strip_trailing_source_sections(text: str) -> str:
+    """Odstráni z textu odpovede modelu sekcie Zdroje/Overenie, ktoré systém doplní sám – aby sa nezdvojovali."""
+    if not text or not text.strip():
+        return text
+    for marker in ("\n## Zdroje", "\n## Overenie", "\n## 📚 Zdroje"):
+        idx = text.find(marker)
+        if idx != -1:
+            return text[:idx].rstrip()
+    return text
+
+
+# Počet webových zdrojov: zobrazovať a používať 4–6; v texte cituj 3–6.
+WEB_SOURCES_MIN = 4
+WEB_SOURCES_MAX = 6
+
+
+def _normalize_web_url(url: str) -> str:
+    """Normalizuje URL na porovnanie (odstráni trailing slash, zjednotí)."""
+    if not url or not url.strip():
+        return ""
+    u = url.strip()
+    if u.endswith("/"):
+        u = u[:-1]
+    return u.lower()
+
+
+def dedupe_web_sources_by_url(sources: list, by_domain: bool = True) -> list:
+    """Odstráni duplicitné webové zdroje: podľa URL, alebo (ak by_domain) podľa domény – ponechá prvý výskyt každého URL/domény."""
+    if not sources:
+        return []
+    seen = set()
+    out = []
+    for s in sources:
+        url = (s.get("url") if isinstance(s, dict) else getattr(s, "url", "")) or ""
+        if not url.strip():
+            continue
+        if by_domain:
+            try:
+                key = urlparse(url.strip()).netloc.lower()
+                if key.startswith("www."):
+                    key = key[4:]
+            except Exception:
+                key = _normalize_web_url(url)
+        else:
+            key = _normalize_web_url(url)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(s)
+    return out
+
+
+def limit_web_sources(sources: list, min_sources: int = None, max_sources: int = None) -> list:
+    """Obmedzí zoznam webových zdrojov na 4–6 (alebo min_sources–max_sources). Používa sa pre Zdroje (internet) aj Overenie v internete."""
+    min_sources = min_sources if min_sources is not None else WEB_SOURCES_MIN
+    max_sources = max_sources if max_sources is not None else WEB_SOURCES_MAX
+    if not sources:
+        return []
+    n = min(max_sources, len(sources))
+    return sources[:n]
+
+
+def short_description_from_title_and_url(title: str, url: str, max_words: int = 2) -> str:
+    words = (title or "").strip().split()
+    if len(words) >= max_words:
+        return " ".join(words[:max_words])
+    if len(words) == 1 and max_words > 1:
+        return words[0]
+    if words:
+        return " ".join(words)
+    try:
+        path = urlparse((url or "").strip()).path.strip("/")
+        if path:
+            segment = path.split("/")[-1]
+            segment = segment.replace(".pdf", "").replace(".html", "").replace("-", " ").replace("_", " ")[:40]
+            seg_words = segment.split()[:max_words]
+            if seg_words:
+                return " ".join(seg_words)
+    except Exception:
+        pass
+    return url_to_site_name(url)
 
 # Strips trailing .html or .html/ from a URL string.
 def clean_url(url: str) -> str:
@@ -166,10 +263,117 @@ def show_error_with_context(error_msg, docs_list):
 
 MAX_L2_DISTANCE = 0.92
 TOP_DOCS_MAX = 12
+# FAISS "má odpoveď" len ak aspoň toľko relevantných chunkov a najlepší score nie je horší než threshold.
+FAISS_MIN_CHUNKS = 2
+FAISS_MAX_BEST_L2 = 0.90
+# When agent decides to use web search (NEED_WEB_SEARCH). Claude built-in web_search_20250305 only.
+WEB_SEARCH_MAX_USES = int(os.environ.get("WEB_SEARCH_MAX_USES", "3"))
+# Models that support Claude web_search_20250305 (use first available when need_second_call).
+CLAUDE_WEB_SEARCH_MODELS = [
+    "claude-sonnet-4-5-20250929",
+    "claude-sonnet-4-5",
+    "claude-sonnet-4-20250514",
+    "claude-sonnet-4",
+    "claude-3-5-haiku-20241022",
+]
+NEED_WEB_MARKER = "NEED_WEB_SEARCH"
 
 
-# Main RAG entry: retrieves relevant docs, builds context, calls LLM (Anthropic/OpenAI), appends sources section and returns full answer.
+def _strip_need_web_from_answer(text: str) -> str:
+    """Remove any trailing NEED_WEB_SEARCH line and the following line (search query) from answer text."""
+    if not text or NEED_WEB_MARKER not in text:
+        return text
+    idx = text.rfind(NEED_WEB_MARKER)
+    if idx == -1:
+        return text
+    return text[:idx].rstrip()
+
+
+def _call_claude_with_web_search(system_prompt: str, user_prompt: str, model: str, api_key: str):
+    """Call Anthropic Messages API with web_search_20250305 tool. Returns (answer_text, web_sources_list)."""
+    import anthropic
+    client = anthropic.Anthropic(api_key=api_key)
+    resp = client.messages.create(
+        model=model,
+        max_tokens=2000,
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_prompt}],
+        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": WEB_SEARCH_MAX_USES}],
+    )
+    text_parts = []
+    web_sources = []
+    for block in getattr(resp, "content", []) or []:
+        block_type = getattr(block, "type", None) or (block.get("type") if isinstance(block, dict) else None)
+        if block_type == "text":
+            t = getattr(block, "text", None) or (block.get("text") if isinstance(block, dict) else "")
+            if t:
+                text_parts.append(t)
+        elif block_type == "web_search_tool_result":
+            content = getattr(block, "content", None) or (block.get("content") if isinstance(block, dict) else None)
+            if not isinstance(content, list):
+                continue
+            for item in content:
+                itype = item.get("type") if isinstance(item, dict) else getattr(item, "type", None)
+                if itype != "web_search_result":
+                    continue
+                url = item.get("url", "") if isinstance(item, dict) else getattr(item, "url", "")
+                title = (item.get("title") or url) if isinstance(item, dict) else (getattr(item, "title", None) or url)
+                if url:
+                    web_sources.append({"title": title or url, "url": url})
+    answer_text = "\n".join(text_parts).strip() if text_parts else ""
+    return answer_text, web_sources
+
+OFF_TOPIC_MESSAGE = (
+    "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. "
+    "Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok."
+)
+
+# Returns True if the query asks for contacts, addresses, phone numbers, or similar lookup info (answer should come from web only).
+def is_contact_or_lookup_query(query: str) -> bool:
+    q = query.lower().strip()
+    terms = (
+        "kontakt", "kontakty", "telefón", "telefónne", "e-mail", "email", "adresa", "sídlo",
+        "kde nájdem", "aký je kontakt", "ako kontaktovať", "číslo na ", "kontakt na ",
+        "štátny pedagogický ústav", "špú", "núvam", "nivam", "núcem", "nucem",
+    )
+    return any(t in q for t in terms)
+
+
+# Returns True if the query appears to be about special education, supportive measures, or related institutions.
+def is_query_about_special_education(query: str) -> bool:
+    q = query.lower().strip()
+    if len(q) < 3:
+        return False
+    topic_terms = (
+        "podporn", "špeciál", "vzdeláv", "žiak", "žiakov", "žiaka", "škola", "školsk",
+        "inklúz", "inkluz", "katalóg", "vyhláška", "mšvv", "ministerstvo školstva",
+        "nivam", "špi", "pedagogick", "poradenstvo", "asistent", "pedagóg",
+        "adhd", "autizmus", "asd", "dyslex", "dysgraf", "potreby žiaka",
+        "podporných opatrení", "špeciálne vzdelávanie", "špeciálna pedagogika",
+        "výchovno-vzdelávacie", "zpp", "úroveň podpory", "individualiz", "čítanie s porozumením", 
+        "pravopis", "pravopisné chyby", "čítanie textu", "porozumenie textu", "jazykové vzdelávanie",
+        "jazyková výučba", "hodnotenie", "úpravy hodnotenia", "hodnotenie výsledkov", "písomka", "test", "skúška",
+        "hypersenzitivita", "hluk", "citlivý", "citlivá", "úpravy priestoru", "prostredie", "senzorické prestávky",
+        "priestor", "prostredie", "triedne pravidlá", "organizácia priestoru", "trieda", "absencia", "reintegrácia", "návrat do školy",
+        "komunikácia s rodičmi", "rodičia", "domáce úlohy", "domáce čítanie", "rutiny pre rodičov", "písanie", "tempo písania",
+        "dysgrafia", "písomný prejav", "grafomotorika", "ASD", "autizmus", "autistický", "zmeny režimu", "vizuálne rozvrhy", "vizuálne pomôcky",
+        "prechodové rituály", "struktúra", "režim", "OSŽ", "odlišný slovenčina jazyk", "slovenčina ako druhý jazyk", "jazyková podpora",
+        "prírodoveda", "prírodopis", "prírodovedné predmety", "porozumenie textu", "čítanie s porozumením", "práca s textom", "kroky", "postup", "realizácia", "praktické riešenia",
+        "skúšky","hypersenzitivita", "hluk", "citlivý", "citlivá", "úpravy priestoru", "prostredie", "senzorické prestávky", "priestor", "prostredie", "triedne pravidlá", "organizácia priestoru", "trieda", "absencia", "reintegrácia", "návrat do školy",
+        "komunikácia s rodičmi", "rodičia", "domáce úlohy", "domáce čítanie", "rutiny pre rodičov", "písanie", "tempo písania", "dysgrafia", "písomný prejav", "grafomotorika", "ASD", "autizmus", "autistický", "zmeny režimu", "vizuálne rozvrhy", "vizuálne pomôcky",
+        "prechodové rituály", "struktúra", "režim", "OSŽ", "odlišný slovenčina jazyk", "slovenčina ako druhý jazyk", "jazyková podpora", "prírodoveda", "prírodopis", "prírodovedné predmety", "porozumenie textu", "čítanie s porozumením", "práca s textom", "kroky", "postup", "realizácia", "praktické riešenia",
+        "skúška", "test", "písomka", "úlohy", "matematika", "matematické", "počítanie", "úlohy", "matematické úlohy", "hodnotenie", "úpravy hodnotenia", "hodnotenie výsledkov", "písomka", "test", "skúška",
+        "hypersenzitivita", "hluk", "citlivý", "citlivá", "úpravy priestoru", "prostredie", "senzorické prestávky", "priestor", "prostredie", "triedne pravidlá", "organizácia priestoru", "trieda", "absencia", "reintegrácia", "návrat do školy",
+        "komunikácia s rodičmi", "rodičia", "domáce úlohy", "domáce čítanie", "rutiny pre rodičov", "písanie", "tempo písania", "dysgrafia", "písomný prejav", "grafomotorika", "ASD", "autizmus", "autistický", "zmeny režimu", "vizuálne rozvrhy", "vizuálne pomôcky",
+        "prechodové rituály", "struktúra", "režim", "OSŽ", "odlišný slovenčina jazyk", "slovenčina ako druhý jazyk", "jazyková podpora", "prírodoveda", "prírodopis", "prírodovedné predmety", "porozumenie textu", "čítanie s porozumením", "práca s textom", "kroky", "postup", "realizácia", "praktické riešenia",
+    )
+    return any(term in q for term in topic_terms)
+
+# Main RAG entry: retrieves relevant docs, builds context, calls Anthropic (Claude), appends sources section and returns full answer.
 def ask(query: str) -> str:
+    if not is_query_about_special_education(query):
+        return OFF_TOPIC_MESSAGE
+
     vs = get_vectorstore()
 
    
@@ -240,6 +444,12 @@ def ask(query: str) -> str:
     
     if "senzorické" in query_lower or "senzorický" in query_lower:
         keywords.extend(["senzorické", "senzorické prestávky", "senzorické potreby"])
+
+    if "opatrenia" in query_lower or "opatrenie" in query_lower:
+        keywords.extend(["opatrenia", "opatrenie", "opatrenia pre žiaka", "opatrenia pre učiteľa", "opatrenia pre rodičov"])
+
+    if "podporné" in query_lower or "podpora" in query_lower:
+        keywords.extend(["podporné opatrenia", "podpora", "podpora žiaka", "podpora učiteľa", "podpora rodičov"])
     
     for keyword in keywords[:5]:
         try:
@@ -266,25 +476,45 @@ def ask(query: str) -> str:
         docs_filtered = [(d, s) for d, s in unique_scored if level_ok(d.metadata)]
     docs_with_scores_final = docs_filtered[:TOP_DOCS_MAX] if docs_filtered else unique_scored[:TOP_DOCS_MAX]
     docs = [d for d, _ in docs_with_scores_final]
-    
+    best_l2 = docs_with_scores_final[0][1] if docs_with_scores_final else 1.0
+    faiss_has_answer = len(docs_with_scores_final) >= FAISS_MIN_CHUNKS and best_l2 <= FAISS_MAX_BEST_L2
+
     context_blocks = []
     sources_info = []
     for i, d in enumerate(docs, 1):
+        label = f"D{i}"
         title = d.metadata.get("title", "") or ""
         if title == "Kniha katalóg podporných opatrení":
-            title = "Katalóg podporných opatrení. 2. vydanie. Bratislava: Národný inštitút vzdelávania a mládeže, 2024. Schválené Ministerstvom školstva, výskumu, vývoja a mládeže Slovenskej republiky pod číslom 2024/17370:1‑E1660, s platnosťou od 1. septembra 2024."
+            title = "Katalóg podporných opatrení (NÚVaV 2024)"
         if not title:
             title = d.metadata.get("source_file", "").split("/")[-1] or f"Dokument {i}"
         url = resolve_url(d.metadata)
         snippet = compact(d.page_content)[:1000]
-        context_blocks.append(f"[{i}] {title}\n---\n{snippet}")
-        sources_info.append({"num": i, "title": title, "url": url})
+        url_line = f"URL: {url}\n" if url else ""
+        context_blocks.append(f"[{label}] {title}\n{url_line}---\n{snippet}")
+        sources_info.append({"num": i, "label": label, "title": title, "url": url})
     
     if not sources_info:
-        sources_info.append({"num": 1, "title": "Katalóg podporných opatrení", "url": "https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/"})
+        sources_info.append({"num": 1, "label": "D1", "title": "Katalóg podporných opatrení", "url": "https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/"})
 
     context = "\n\n".join(context_blocks)
-    
+
+    # --- Režim: FAISS má odpoveď (answer + verify) alebo len internet (internet_only) ---
+    # Ak FAISS má odpoveď: odpoveď z dokumentov, cituj len [D#], VŽDY web na overenie/doplnenie → na konci Zdroje (dokumenty) + Overenie v internete.
+    # Ak FAISS nemá odpoveď alebo ide o kontakty/vyhľadávanie: odpoveď len z webu, cituj [W#] → na konci Zdroje (internet).
+    need_web_only = not faiss_has_answer or is_contact_or_lookup_query(query)
+    if faiss_has_answer:
+        router_system = """Si asistent. Hľadáš odpoveď VÝLUČNE v poskytnutých dokumentoch z katalógu (číslované [D1], [D2], ...).
+
+Ak v dokumentoch NÁJDEŠ dostatočnú odpoveď – napíš PLNÚ odpoveď v slovenčine s citáciami [D1], [D2], ... Nič iné.
+Ak odpoveď v dokumentoch NENÁJDEŠ alebo je len čiastočná – NEPÍŠ že nemáš informácie. Namiesto toho napíš IBA dva riadky: prvý riadok presne NEED_WEB_SEARCH, druhý riadok jeden vyhľadávací dotaz v slovenčine. Systém potom vyhľadá na webe a ty odpovieš z webových zdrojov."""
+        router_user = f"""Otázka: {query}
+
+Dokumenty (kontext [D1], [D2], ...):
+{context}
+
+Odpoveď v dokumentoch? Ak áno – plná odpoveď s [D1], [D2]. Ak nie – NEED_WEB_SEARCH a dotaz."""
+
     system_prompt = """Si expertný asistent špeciálneho pedagóga na Slovensku s hlbokými znalosťami o podporných opatreniach a inkluzívnom vzdelávaní.
 
 Tvoja úloha: Poskytovať konkrétne, praktické a realizovateľné riešenia na základe oficiálnych dokumentov.
@@ -293,77 +523,73 @@ KRÍTICKY DÔLEŽITÉ - VYSVETLITEĽNOSŤ A ODKAZY:
 1. PRE KAŽDÉ OPATRENIE MUSÍŠ UVIESŤ "Prečo toto opatrenie:" s 2-3 vetami:
    - Akú konkrétnu potrebu žiaka rieši
    - Prečo je toto opatrenie vhodné pre danú situáciu
-   - Odkaz na dokument [N] z ktorého toto opatrenie pochádza
-2. PRI KAŽDEJ ČINNOSTI MUSÍŠ UVIESŤ ODKAZ [N] na dokument:
-   - Ak navrhuješ niečo z dokumentu [1], napíš [1]
-   - Ak kombinuješ z [2] a [3], napíš [2], [3]
-   - BEZ ODKAZOV [N] NEPÍŠ ŽIADNE OPATRENIA
+   - Odkaz na dokument [D1], [D2], … z ktorého opatrenie pochádza
+2. PRI KAŽDEJ ČINNOSTI MUSÍŠ UVIESŤ ODKAZ na dokument: [D1], [D2], [D3] – nikdy [1], [2], [10], [11].
+   - Ak z dokumentu D1, napíš [D1]; ak z D2 a D3, napíš [D2], [D3]
+   - BEZ ODKAZOV [D#] NEPÍŠ ŽIADNE OPATRENIA
 3. Vždy zdôvodni výber opatrenia – prečo práve toto, nie iné
 
 ANALYTICKÝ PRÍSTUP:
 1. Analyzuj problém v otázke a identifikuj kľúčové potreby žiaka.
 2. Pre každú potrebu nájdi relevantné opatrenia v dokumentoch [1], [2], [3]...
-3. Pre každé opatrenie vysvetli PREČO je vhodné (2-3 vety) a uveď odkaz [N].
+3. Pre každé opatrenie vysvetli PREČO je vhodné (2-3 vety) a uveď odkaz [D1], [D2], …
+4. Režim „odpoveď z dokumentov (FAISS)“: odpoveď zakladaj na dokumentoch, v texte cituj VÝHRADNE [D1], [D2], [D3]. Informáciu VŽDY over a dopĺňaj cez internet (systém ti dá webové výsledky), ale v texte NEPÍŠ [W1], [W2] – webové zdroje sa zobrazia na konci v sekcii „Overenie v internete“. Režim „odpoveď len z webu“: keď FAISS nemá odpoveď, odpovedaj z internetu a cituj [W1], [W2] pri každom fakte.
 
 FORMÁT ODPOVEDE:
+- Odpoveď štruktúruj JASNE: používaj LEN nadpisy ## (sekcia) a ### (podsekcia). Telo textu píš ako obyčajný text.
+- Vizuálne zvýrazni LEN nadpisy (##, ###). Adresy, telefóny, e-maily, čísla píš ako bežný text – NEPOUŽÍVAJ ** (tučné) ani iné zvýraznenie pre kontaktné údaje ani pre odseky textu. Nadpis = ## alebo ###; zvyšok = normálny text.
+- Príklad: napíš "Adresa: Ševčenkova 11, Bratislava [W1]." nie "**Adresa:** **Ševčenkova 11**". Telefón a e-mail tiež bez **.
+
 ## 🎯 Analýza problému
 - Stručný popis identifikovaného problému
 - Kľúčové potreby žiaka
 
 ## 📋 Konkrétne opatrenia
 
-### [Názov opatrenia alebo kategórie]
-**Prečo toto opatrenie:**
-- 2-3 vety vysvetľujúce akú potrebu rieši a prečo je vhodné
-- Odkaz na dokument [N] z ktorého pochádza
+Pri každej aktivite/kroku uviesť [D1], [D2], … alebo [W1], [W2] – podľa režimu (dokumenty vs. len web). ZAKAZANÉ čísla typu [10], [11] bez D alebo W.
 
-**Realizácia:**
-- [Učiteľ] Konkrétna činnosť s odkazom [N]
-- [Asistent] Konkrétna úloha s odkazom [N]
-- [Škola] Organizačné opatrenie s odkazom [N]
-
-### Pre učiteľa:
-- [Učiteľ] Činnosť – odkaz [N] (napr. "Podľa [1] a [3]...")
-
-### Pre asistenta pedagóga:
-- [Asistent] Úloha – odkaz [N]
-
-### Pre školu/vedenie:
-- [Škola] Opatrenie – odkaz [N]
-
-## Úpravy hodnotenia (ak relevantné)
-- Konkrétne spôsoby hodnotenia s odôvodnením a odkazmi [N]
+### [Názov opatrenia]
+Realizácia: … s odkazom [D1] / [D2]. Prečo toto opatrenie: … [D#]. (Nadpisy sekcií môžu byť ### ; vnútorný text nie je tučný.)
 
 PRAVIDLÁ:
-- VŽDY používaj odkazy [1], [2], [3]... pri každom opatrení a činnosti
-- VŽDY vysvetli "Prečo toto opatrenie" (2-3 vety) pre každé opatrenie
-- Odpovedaj VÝLUČNE na základe poskytnutých dokumentov
-- Používaj len NAJRELEVANTNEJŠIE dokumenty – nie всі, len tie ktoré skutočne potrebuješ (zvyčajne 3-7)
-- Ak informácie chýbajú, napíš "Potrebné doplniť z odborných zdrojov"
-- Používaj slovenský jazyk
-- NEUVÁDZAJ zoznam zdrojov ani URL – zdroje sa doplnia automaticky na konci
-- NEUVÁDZAJ zákony, legislatívu ani odkazy na slov-lex – odpoveď len z dokumentov podporných opatrení
-- DÔLEŽITÉ: Odpoveď musí byť úplná – nepíš "..." або обрізай текст, vždy dokonči všetky sekcie"""
+- Dokumenty z katalógu cituj LEN ako [D1], [D2], [D3]. Webové zdroje cituj LEN ako [W1], [W2], [W3]. Nikdy [1], [2], [10], [11].
+- Odpoveď z dokumentov (FAISS): v texte cituj VÝHRADNE [D#]. Web sa VŽDY používa na overenie/doplnenie, ale v texte sa [W#] neuvádza – na konci bude sekcia „Zdroje (dokumenty)“ a „Overenie v internete“ so zoznamom URL.
+- Odpoveď len z webu (keď FAISS nenašiel): cituj 3 až 6 zdrojov [W1]–[W6] pri dôležitých faktoch; v zozname sa zobrazí 4–6 zdrojov.
+- NEUVÁDZAJ zoznam zdrojov ani URL v texte – doplnia sa na konci. NEPÍŠ sekcie „## Zdroje (dokumenty)“ ani „## Overenie v internete“ ani „## Zdroje (internet)“ – systém ich doplní automaticky.
+- Štruktúra a vzhľad: zvýraznené sú LEN nadpisy (##, ###). Adresy, telefóny, e-maily a bežné odseky píš bez ** (bez tučného). Cieľ: čitateľná štruktúra, bez „polovice textu zvýraznenej“.
+- DÔLEŽITÉ: Odpoveď musí byť úplná – nepíš "..." ani neorezávaj text, vždy dokonči všetky sekcie. Každé vetu vždy dopíš do konca – nikdy nekonč v polovici vety ani nevynechávaj koniec myšlienky.
+- ZAKAZANÉ: Ponechávať prázdne odrážky alebo prázdne položky zoznamu. Každá odrážka (•) alebo číslovaný bod MUSÍ mať za sebou text. Ak nemáš čo napísať k bodu, vynechaj ho – nikdy nepíš len „•“ alebo „-“ bez textu.
+- KRITICKÉ: NIKDY nepíš, že nemáš informácie, že nemôžeš odpovedať, že v dokumentoch to nie je alebo že zdroje sú nedostatočné. Vždy poskytni konkrétnu odpoveď na základe dostupných dokumentov [D#] alebo webových zdrojov [W#]. Ak máš k dispozícii webové výsledky – odpovedaj z nich; ak dokumenty – z nich. Odmietnutie odpovede je ZAKAZANÉ."""
 
-    # Формуємо список доступних документів для моделі
-    available_docs = "\n".join([f"[{s['num']}] {s['title']}" for s in sources_info])
-    
-    user_prompt = f"""Otázka: {query}
+    def _build_user_prompt(context: str, sources_info: list, query: str, internet_only: bool = False) -> str:
+        doc_sources = [s for s in sources_info if s.get("source") != "web"]
+        available_docs = "\n".join([f"[{s.get('label', 'D'+str(s['num']))}] {s['title']}" for s in doc_sources])
+        if internet_only:
+            return f"""Otázka: {query}
 
-Dostupné dokumenty (používaj ich čísla v odkazoch [N]):
+Režim „odpoveď len z webu“: odpovedaj VÝLUČNE z výsledkov webového vyhľadávania. Cituj 3 až 6 zdrojov [W1]–[W6] pri každom dôležitom fakte (čísla, adresy, telefóny, názvy). Na konci sa zobrazí „Zdroje (internet)“ so 4–6 zdrojmi.
+NIKDY nepíš, že informácia chýba – vždy sformuluj odpoveď z nižšie poskytnutých webových výsledkov."""
+        return f"""Otázka: {query}
+
+Dostupné dokumenty (cituj ako [D1], [D2], …):
 {available_docs}
 
 Kontekst z dokumentov:
 {context}
 
-DÔLEŽITÉ: Pri každom opatrení a činnosti MUSÍŠ uviest odkaz na dokument [N] z ktorého informácia pochádza. Napríklad: "Podľa [1] a [3]..." alebo "Toto opatrenie je opísané v [2]...".
+Odpoveď zakladaj na dokumentoch a cituj VÝHRADNE [D1], [D2], [D3]. Systém ti zároveň poskytne výsledky z internetu na overenie a doplnenie – použi ich na overenie/doplnenie informácií, ale v texte NEPÍŠ [W1], [W2]; webové zdroje sa zobrazia na konci v sekcii „Overenie v internete“. V texte teda len [D#].
+NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dokumentov a over/dopĺňaj cez web.
 """
-    
+
     ANTHROPIC = os.environ.get("ANTHROPIC_API_KEY", "").strip()
-    OPENAI = os.environ.get("OPENAI_API_KEY", "").strip()
-    
     result_parts = []
-    
+    answer_mode = None  # "faiss_verify" | "internet_only"
+    web_verify_sources = []  # list of {"title", "url"} for Overenie v internete
+    web_sources_internet = []
+
+    if not ANTHROPIC:
+        show_error_with_context("API key not found. Add ANTHROPIC_API_KEY to api_keys.env", docs)
+
     if ANTHROPIC:
         try:
             from langchain_anthropic import ChatAnthropic
@@ -402,48 +628,88 @@ DÔLEŽITÉ: Pri každom opatrení a činnosti MUSÍŠ uviest odkaz na dokument 
                     "claude-3-5-haiku",
                 ]
             
-            messages = [("system", system_prompt), ("user", user_prompt)]
             resp = None
             used_model = None
-            
+
             for model_to_try in model_options:
                 try:
                     llm = ChatAnthropic(
                         model=model_to_try,
                         temperature=0,
-                        max_tokens=2000,  
+                        max_tokens=2000,
                         api_key=ANTHROPIC
                     )
-                    attempts = 4
-                    for attempt in range(attempts):
-                        try:
-                            resp = llm.invoke(messages)
-                            used_model = model_to_try
-                            result_parts.append(resp.content)
-                            break
-                        except Exception as e:
-                            emsg = str(e)
-                            if "Overloaded" in emsg or "529" in emsg:
-                                wait = 2 ** attempt
-                                time.sleep(wait)
-                                continue
-                            elif "404" in emsg or "not_found" in emsg.lower():
+                    need_second_call = need_web_only
+                    if not need_web_only:
+                        router_resp = None
+                        attempts = 2  # max 2 retries (529/Overloaded) – zníži počet platených volaní
+                        for attempt in range(attempts):
+                            try:
+                                router_resp = llm.invoke([("system", router_system), ("user", router_user)])
                                 break
-                            else:
+                            except Exception as e:
+                                emsg = str(e)
+                                if "Overloaded" in emsg or "529" in emsg:
+                                    time.sleep(2 ** attempt)
+                                    continue
+                                elif "404" in emsg or "not_found" in emsg.lower():
+                                    break
                                 raise
+                        if router_resp is not None:
+                            router_content = (router_resp.content if hasattr(router_resp, "content") else str(router_resp)).strip()
+                            lines = router_content.split("\n")
+                            need_second_call = bool(lines and lines[0].strip() == NEED_WEB_MARKER)
+
+                    web_model = model_to_try if model_to_try in CLAUDE_WEB_SEARCH_MODELS else CLAUDE_WEB_SEARCH_MODELS[0]
+
+                    if need_second_call:
+                        answer_mode = "internet_only"
+                        user_prompt = _build_user_prompt(context, sources_info, query, internet_only=True)
+                        try:
+                            answer_text, web_sources = _call_claude_with_web_search(
+                                system_prompt, user_prompt, web_model, ANTHROPIC
+                            )
+                            if answer_text:
+                                result_parts.append(strip_trailing_source_sections(answer_text))
+                                resp = True
+                                raw_web = [ws for ws in web_sources if ws.get("url")]
+                                limited_web = limit_web_sources(dedupe_web_sources_by_url(raw_web))
+                                for i, ws in enumerate(limited_web, 1):
+                                    web_sources_internet.append({
+                                        "label": f"W{i}", "title": ws.get("title", ""), "url": ws.get("url", "")
+                                    })
+                            else:
+                                result_parts.append("Odpoveď z webu nevrátila text. Skúste znova alebo overte Web Search v Anthropic Console.")
+                                resp = True
+                        except Exception as e:
+                            result_parts.append(f"Vyhľadávanie na webe zlyhalo: {e}. Overte ANTHROPIC_API_KEY a Web Search.")
+                            resp = True
                     else:
-                        continue
-                    
-                    if resp:
-                        break
-                        
+                        answer_mode = "faiss_verify"
+                        user_prompt = _build_user_prompt(context, sources_info, query, internet_only=False)
+                        try:
+                            answer_text, web_sources = _call_claude_with_web_search(
+                                system_prompt, user_prompt, web_model, ANTHROPIC
+                            )
+                            if answer_text:
+                                result_parts.append(strip_trailing_source_sections(answer_text))
+                                resp = True
+                                raw_verify = [{"title": ws.get("title", ""), "url": ws.get("url", "")} for ws in web_sources if ws.get("url")]
+                                web_verify_sources.extend(limit_web_sources(dedupe_web_sources_by_url(raw_verify)))
+                            else:
+                                resp = llm.invoke([("system", system_prompt), ("user", user_prompt)])
+                                result_parts.append(strip_trailing_source_sections(resp.content if hasattr(resp, "content") else str(resp)))
+                        except Exception as e:
+                            resp = llm.invoke([("system", system_prompt), ("user", user_prompt)])
+                            result_parts.append(strip_trailing_source_sections(resp.content if hasattr(resp, "content") else str(resp)))
+                    break
+
                 except Exception as e:
                     emsg = str(e)
                     if "404" in emsg or "not_found" in emsg.lower():
                         continue
-                    else:
-                        continue
-            
+                    continue
+
             if not resp:
                 if use_only_user_model:
                     error_msg = f"Your model '{user_model_from_env}' from api_keys.env is not available. "
@@ -459,101 +725,55 @@ DÔLEŽITÉ: Pri každom opatrení a činnosti MUSÍŠ uviest odkaz na dokument 
         except Exception as e:
             show_error_with_context(f"Error initializing Anthropic client: {e}", docs)
 
-    elif OPENAI:
-        try:
-            from langchain_core.prompts import ChatPromptTemplate
-            from langchain_openai import ChatOpenAI
-
-            prompt = ChatPromptTemplate.from_messages([
-                ("system", system_prompt),
-                ("user", "{up}")
-            ])
-            llm = ChatOpenAI(model=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"), temperature=0)
-            resp = llm.invoke(prompt.format_messages(up=user_prompt))
-            result_parts.append(resp.content)
-
-        except Exception as e:
-            show_error_with_context(f"OpenAI error: {e}", docs)
-
-    else:
-        show_error_with_context("API keys not found. Add ANTHROPIC_API_KEY or OPENAI_API_KEY to api_keys.env", docs)
-    
     model_answer = "\n".join(result_parts) if result_parts else ""
 
-    if not sources_info:
-        sources_info.append({"num": 1, "title": "Katalóg podporných opatrení", "url": "https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/"})
+    def extract_cited_labels(answer_text: str, prefix: str) -> set:
+        text = answer_text
+        for sep in ("## Zdroje", "## 📚 Zdroje"):
+            idx = text.find(sep)
+            if idx != -1:
+                text = text[:idx]
+        matches = re.findall(r'\[' + prefix + r'(\d+)\]', text)
+        return set(int(m) for m in matches if m.isdigit())
 
-    # Extracts document numbers [1], [2], [3]... cited in the answer text (before Zdroje section).
-    def extract_used_source_numbers(answer_text: str) -> set:
-        import re
-        zdroje_start = answer_text.find("## 📚 Zdroje")
-        if zdroje_start != -1:
-            answer_text = answer_text[:zdroje_start]
-        matches = re.findall(r'\[(\d+)\]', answer_text)
-        used_numbers = set()
-        for match in matches:
-            try:
-                num = int(match)
-                if 1 <= num <= len(sources_info):
-                    used_numbers.add(num)
-            except ValueError:
-                continue
-        return used_numbers
-
-    used_source_numbers = extract_used_source_numbers(model_answer)
-    used_sources = [s for s in sources_info if s["num"] in used_source_numbers]
-    if used_sources:
-        used_sources.sort(key=lambda x: x["num"])
-    
-    result_parts.append("\n## 📚 Zdroje\n")
-    result_parts.append("### 📄 Dokumenty podporných opatrení\n")
-
-    sources_added = False
-    if used_sources:
-        for source in used_sources:
-            if source.get("url"):
-                result_parts.append(f"- **[{source['num']}]** {source['title']}  \n  🔗 {source['url']}")
-            else:
-                result_parts.append(f"- **[{source['num']}]** {source['title']}")
-            sources_added = True
-    elif sources_info:
-        seen_urls_fallback = set()
-        unique_fallback_sources = []
-        for source in sources_info:
-            url = source.get("url", "").strip()
-            if url and url in seen_urls_fallback:
-                continue
-            unique_fallback_sources.append(source)
-            if url:
-                seen_urls_fallback.add(url)
-        for source in unique_fallback_sources:
-            if source.get("url"):
-                result_parts.append(f"- **[{source['num']}]** {source['title']}  \n  🔗 {source['url']}")
-            else:
-                result_parts.append(f"- **[{source['num']}]** {source['title']}")
-            sources_added = True
-
-    if not sources_added:
-        result_parts.append("- *Zdroje sa pripravujú...*")
+    if answer_mode == "faiss_verify":
+        cited_d = extract_cited_labels(model_answer, "D")
+        doc_candidates = [s for s in sources_info if s.get("source") != "web" and s.get("label") and s["label"][1:].isdigit()]
+        doc_list = [s for s in doc_candidates if int(s["label"][1:]) in cited_d] if cited_d else doc_candidates
+        doc_list.sort(key=lambda s: int(s["label"][1:]))
+        # Zlúčiť duplikáty: jeden dokument (rovnaký URL) môže mať viac chunkov [D1], [D2], … → jeden riadok so všetkými [D#]
+        by_url = {}
+        for s in doc_list:
+            url = (s.get("url") or "").strip()
+            if url not in by_url:
+                by_url[url] = {"labels": [], "title": s.get("title", "").strip()}
+            by_url[url]["labels"].append(s["label"])
+            if (s.get("title") or "").strip() and len((s.get("title") or "").strip()) > len(by_url[url]["title"]):
+                by_url[url]["title"] = (s.get("title") or "").strip()
+        result_parts.append("\n## Zdroje (dokumenty)\n")
+        for url, data in by_url.items():
+            labels = sorted(data["labels"], key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
+            labels_str = ", ".join(f"[{l}]" for l in labels)
+            title = data["title"] or "Katalóg podporných opatrení"
+            result_parts.append(f"- **{labels_str}** {title} — {url}")
+        if web_verify_sources:
+            result_parts.append("\n## Overenie v internete\n")
+            result_parts.append("Informácia z dokumentov bola overená alebo doplnená na:")
+            for ws in limit_web_sources(web_verify_sources):
+                desc = short_description_from_title_and_url(ws.get("title", ""), ws.get("url", ""))
+                url = (ws.get("url") or "").strip()
+                result_parts.append(f"- **{desc}** — {url}")
+    elif answer_mode == "internet_only":
+        web_list = list(web_sources_internet)
+        web_list.sort(key=lambda s: int(s["label"][1:]) if s.get("label") and s["label"][1:].isdigit() else 0)
+        result_parts.append("\n## Zdroje (internet)\n")
+        for s in web_list:
+            result_parts.append(f"- **[{s.get('label', '')}]** {s.get('title', '')} — {s.get('url', '')}")
+    else:
+        result_parts.append("\n## Zdroje\n")
+        result_parts.append("- Katalóg podporných opatrení — https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/")
 
     final_result = "\n".join(result_parts)
-
-    if "## 📚 Zdroje" not in final_result:
-        final_result += "\n## 📚 Zdroje\n"
-        final_result += "### 📄 Dokumenty podporných opatrení\n"
-        
-        if sources_info:
-            for source in sources_info:
-                if source.get("url"):
-                    final_result += f"- **[{source['num']}]** {source['title']}  \n  🔗 {source['url']}\n"
-                else:
-                    final_result += f"- **[{source['num']}]** {source['title']}\n"
-        else:
-            final_result += "- *Zdroje sa pripravujú...*\n"
-
-    if "## 📚 Zdroje" not in final_result:
-        final_result = final_result.rstrip() + "\n\n## 📚 Zdroje\n### 📄 Dokumenty podporných opatrení\n- *Kontaktujte administrátora systému*\n"
-    
     return final_result
 
 
