@@ -122,6 +122,25 @@ body {
   flex: 1;
   margin-left: var(--sidebar-width);
   min-height: 100vh;
+  position: relative;
+}
+
+.user-greeting-bar {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.user-greeting-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
 .page {
@@ -169,6 +188,121 @@ h1 {
   box-shadow: 0 8px 32px var(--shadow-lg);
   border: 1px solid var(--border-color);
   margin-bottom: 2rem;
+}
+
+/* Document upload block */
+.document-upload-section {
+  margin-bottom: 1.5rem;
+}
+.document-hint,
+.document-select-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.selected-doc-indicator {
+  font-size: 0.9rem;
+  color: var(--success);
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+.document-upload-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.document-upload-row input[type="file"] {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+.document-upload-row button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+.document-upload-row button:hover {
+  opacity: 0.9;
+}
+.document-upload-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.doc-status {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  min-height: 1.5em;
+}
+.doc-status.processing { color: var(--warning); }
+.doc-status.ready { color: var(--success); }
+.doc-status.error { color: var(--error); }
+.documents-list {
+  margin-bottom: 0.75rem;
+}
+.doc-loading,
+.doc-empty {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.doc-item {
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.doc-item input[type="radio"] {
+  margin-right: 0.25rem;
+}
+.doc-item .doc-filename {
+  font-weight: 600;
+  flex: 1;
+  min-width: 120px;
+}
+.doc-item .doc-status-badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+.doc-item .doc-status-badge.ready { background: rgba(16, 185, 129, 0.3); color: var(--success); }
+.doc-item .doc-status-badge.processing { background: rgba(245, 158, 11, 0.3); color: var(--warning); }
+.doc-item .doc-status-badge.error { background: rgba(239, 68, 68, 0.3); color: var(--error); }
+.doc-item .doc-preview {
+  width: 100%;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  max-height: 4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.doc-item button.doc-remove {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--error);
+  cursor: pointer;
+}
+.doc-item button.doc-remove:hover {
+  background: rgba(239, 68, 68, 0.4);
 }
 
 .placeholder-content {
@@ -323,6 +457,26 @@ button:not(.nav-button):disabled {
   color: var(--text-primary);
 }
 
+.output-header-row {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-save-answer {
+  flex: 0 0 auto !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.9rem !important;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.btn-save-answer.btn-save-disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 #out {
   background: var(--bg-tertiary);
   padding: 1.5rem;
@@ -337,6 +491,104 @@ button:not(.nav-button):disabled {
   content: 'Odpoveď sa zobrazí tu...';
   color: var(--text-secondary);
   font-style: italic;
+}
+
+/* History (História otázok) */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-empty,
+.history-loading {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 2rem;
+}
+
+.history-item {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.history-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.history-item-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.history-item-preview {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.95rem;
+}
+
+.history-item-date {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.history-item-body {
+  display: none;
+  padding: 1rem 1rem 1.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.history-item.expanded .history-item-body {
+  display: block;
+}
+
+.history-item-q,
+.history-item-a {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.history-item-q strong,
+.history-item-a strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.history-item-body-content {
+  background: var(--bg-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.history-item-remove {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.history-item-remove:hover {
+  background: rgba(239, 68, 68, 0.3);
 }
 
 /* Markdown стилі */

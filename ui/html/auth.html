@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prihlásenie / Registrácia — BP2026</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    html, body.auth-page { margin: 0; padding: 0; min-height: 100vh; width: 100%; box-sizing: border-box; }
+    body.auth-page { display: flex; align-items: center; justify-content: center; }
+    .auth-wrapper { width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; }
+    .auth-box { background: var(--bg-secondary); border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; box-shadow: 0 8px 32px var(--shadow-lg); border: 1px solid var(--border-color); }
+    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .auth-tab { flex: 1; padding: 0.75rem; border: 2px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-secondary); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .auth-tab:hover { border-color: var(--accent-primary); color: var(--text-primary); }
+    .auth-tab.active { background: linear-gradient(135deg, var(--accent-primary), #5a8fff); color: white; border-color: var(--accent-primary); }
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+    .auth-form label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    .auth-form input { width: 100%; padding: 0.75rem 1rem; font-size: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); margin-bottom: 1rem; box-sizing: border-box; }
+    .auth-form input:focus { outline: none; border-color: var(--accent-primary); }
+    .auth-form button[type="submit"] { width: 100%; padding: 0.75rem 1rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; color: white; cursor: pointer; transition: background 0.2s, opacity 0.2s; }
+    .auth-form button[type="submit"]:hover { opacity: 0.9; }
+    .auth-form button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+    /* Registration: green accent */
+    .auth-box.mode-register .auth-form.active button[type="submit"] { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4); }
+    /* Login: blue accent */
+    .auth-box.mode-login .auth-form.active button[type="submit"] { background: linear-gradient(135deg, var(--accent-primary), #5a8fff); box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
+    .auth-msg { margin-top: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; display: none; }
+    .auth-msg.error { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--error); color: #fca5a5; display: block; }
+    .auth-msg.success { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #6ee7b7; display: block; }
+    .auth-hint { font-size: 0.8rem; color: var(--text-secondary); margin-top: -0.5rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body class="auth-page">
+  <div class="auth-wrapper">
+    <div class="auth-box mode-register" id="auth-box">
+      <h1 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem;">AI asistent</h1>
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-tab="register">Registrácia</button>
+        <button type="button" class="auth-tab" data-tab="login">Prihlásenie</button>
+      </div>
+
+      <form id="form-register" class="auth-form active" novalidate>
+        <label for="reg-username">Prihlasovacie meno (1–10 znakov)</label>
+        <input id="reg-username" name="username" type="text" maxlength="10" autocomplete="username" placeholder="Prihlasovacie meno" />
+        <p class="auth-hint">Maximálne 10 znakov, nesmie byť prázdne.</p>
+        <label for="reg-password">Heslo (presne 4 znaky)</label>
+        <input id="reg-password" name="password" type="password" maxlength="4" autocomplete="new-password" placeholder="••••" />
+        <p class="auth-hint">Presne 4 znaky.</p>
+        <button type="submit">Zaregistrovať sa</button>
+        <div id="msg-register" class="auth-msg" role="alert"></div>
+      </form>
+
+      <form id="form-login" class="auth-form" novalidate>
+        <label for="login-username">Prihlasovacie meno (1–10 znakov)</label>
+        <input id="login-username" name="username" type="text" maxlength="10" autocomplete="username" placeholder="Prihlasovacie meno" />
+        <p class="auth-hint">Maximálne 10 znakov, nesmie byť prázdne.</p>
+        <label for="login-password">Heslo (presne 4 znaky)</label>
+        <input id="login-password" name="password" type="password" maxlength="4" autocomplete="current-password" placeholder="••••" />
+        <p class="auth-hint">Presne 4 znaky.</p>
+        <button type="submit">Prihlásiť sa</button>
+        <div id="msg-login" class="auth-msg" role="alert"></div>
+      </form>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const tabs = document.querySelectorAll('.auth-tab');
+      const forms = document.querySelectorAll('.auth-form');
+      const formRegister = document.getElementById('form-register');
+      const formLogin = document.getElementById('form-login');
+      const msgRegister = document.getElementById('msg-register');
+      const msgLogin = document.getElementById('msg-login');
+
+      function showMsg(el, text, isError) {
+        el.textContent = text;
+        el.className = 'auth-msg ' + (isError ? 'error' : 'success');
+        el.style.display = 'block';
+      }
+      function clearMsg(el) {
+        el.textContent = '';
+        el.className = 'auth-msg';
+        el.style.display = 'none';
+      }
+
+      const authBox = document.getElementById('auth-box');
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          const t = this.dataset.tab;
+          tabs.forEach(function(t) { t.classList.remove('active'); });
+          forms.forEach(function(f) { f.classList.remove('active'); });
+          this.classList.add('active');
+          document.getElementById('form-' + t).classList.add('active');
+          if (authBox) {
+            authBox.classList.remove('mode-register', 'mode-login');
+            authBox.classList.add('mode-' + t);
+          }
+          clearMsg(msgRegister);
+          clearMsg(msgLogin);
+        });
+      });
+
+      function validateUsername(username) {
+        const u = (username || '').trim();
+        if (!u) return 'Prihlasovacie meno nesmie byť prázdne';
+        if (u.length > 10) return 'Prihlasovacie meno najviac 10 znakov';
+        return null;
+      }
+      function validatePassword(password, forLogin) {
+        if (password.length !== 4) return 'Heslo musí mať presne 4 znaky';
+        return null;
+      }
+
+      formRegister.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        clearMsg(msgRegister);
+        const username = (formRegister.username.value || '').trim();
+        const password = formRegister.password.value;
+        const errU = validateUsername(username);
+        const errP = validatePassword(password);
+        if (errU) { showMsg(msgRegister, errU, true); return; }
+        if (errP) { showMsg(msgRegister, errP, true); return; }
+        const btn = formRegister.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        try {
+          const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+          });
+          const data = await res.json().catch(function() { return {}; });
+          if (res.ok) {
+            showMsg(msgRegister, 'Úspech. Presmerovanie...', false);
+            window.location.href = '/dashboard';
+            return;
+          }
+          showMsg(msgRegister, data.detail || 'Chyba registrácie', true);
+        } catch (err) {
+          showMsg(msgRegister, 'Chyba siete. Skúste to znova.', true);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      formLogin.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        clearMsg(msgLogin);
+        const username = (formLogin.username.value || '').trim();
+        const password = formLogin.password.value;
+        const errU = validateUsername(username);
+        const errP = validatePassword(password);
+        if (errU) { showMsg(msgLogin, errU, true); return; }
+        if (errP) { showMsg(msgLogin, errP, true); return; }
+        const btn = formLogin.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+          });
+          const data = await res.json().catch(function() { return {}; });
+          if (res.ok) {
+            showMsg(msgLogin, 'Úspech. Presmerovanie...', false);
+            window.location.href = '/dashboard';
+            return;
+          }
+          showMsg(msgLogin, data.detail || 'Chyba prihlásenia', true);
+        } catch (err) {
+          showMsg(msgLogin, 'Chyba siete. Skúste to znova.', true);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

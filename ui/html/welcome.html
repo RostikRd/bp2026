@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vitajte — BP2026</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    html, body.welcome-page { margin: 0; padding: 0; min-height: 100vh; width: 100%; box-sizing: border-box; }
+    body.welcome-page { display: flex; align-items: center; justify-content: center; }
+    .welcome-wrapper { width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; }
+    .welcome-box { background: var(--bg-secondary); border-radius: 16px; padding: 3rem; max-width: 480px; width: 100%; box-shadow: 0 8px 32px var(--shadow-lg); border: 1px solid var(--border-color); text-align: center; }
+    .welcome-box h1 { margin-bottom: 1rem; font-size: 1.75rem; color: var(--text-primary); }
+    .welcome-box p { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; }
+    .welcome-box .btn-register { display: inline-block; padding: 0.875rem 2rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; background: linear-gradient(135deg, var(--accent-primary), #5a8fff); color: white; text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
+    .welcome-box .btn-register:hover { opacity: 0.9; }
+  </style>
+</head>
+<body class="welcome-page">
+  <div class="welcome-wrapper">
+    <div class="welcome-box">
+      <h1>Vitajte na našej stránke</h1>
+      <p>Ak chcete používať službu, zaregistrujte sa alebo sa prihláste do svojho účtu.</p>
+      <a href="/auth" class="btn-register">Zaregistrovať sa</a>
+    </div>
+  </div>
+</body>
+</html>

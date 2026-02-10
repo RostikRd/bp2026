@@ -10,7 +10,7 @@
 <body>
   <div class="sidebar">
     <div class="sidebar-logo">
-      <img src="/logo_named.png" alt="Logo" class="logo" onerror="this.src='/logo.png'; this.onerror=null;">
+      <img src="/assets/logo_named.png" alt="Logo" class="logo" onerror="this.src='/assets/logo_named.svg'; this.onerror=null;">
     </div>
     <nav class="sidebar-nav">
       <button class="nav-button active" data-page="ai-assistant">
@@ -21,14 +21,17 @@
         <span class="nav-icon">📚</span>
         <span class="nav-text">História otázok</span>
       </button>
-      <button class="nav-button" data-page="page3">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-text">Nastavenia</span>
-      </button>
+      <a href="/logout" class="nav-button" id="btn-logout" title="Odhlásiť sa" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-text">Odhlásiť sa</span>
+      </a>
     </nav>
   </div>
 
   <div class="main-wrapper">
+    <div class="user-greeting-bar">
+      <span id="user-greeting" class="user-greeting-text"></span>
+    </div>
     <!-- Page 1: AI Assistant (current functionality) -->
     <div class="page active" id="page-ai-assistant">
       <div class="container">
@@ -37,6 +40,22 @@
         </header>
 
         <div class="main-content">
+          <div class="document-upload-section input-section">
+            <label>📎 Priložiť dokument</label>
+            <p class="document-hint">PDF, JPG, PNG alebo WEBP (max 10 MB). Text sa extrahuje a použije ako kontext pre odpoveď.</p>
+            <div class="document-upload-row">
+              <input type="file" id="doc-file" accept=".pdf,.png,.jpg,.jpeg,.webp" />
+              <button type="button" id="btn-upload-doc">Nahrať</button>
+            </div>
+            <div id="doc-upload-status" class="doc-status" aria-live="polite"></div>
+            <div id="documents-list" class="documents-list">
+              <div id="documents-loading" class="doc-loading" style="display: none;">Načítavam zoznam...</div>
+              <div id="documents-empty" class="doc-empty">Žiadne nahraté dokumenty.</div>
+              <div id="documents-items"></div>
+            </div>
+            <p class="document-select-hint">Vyberte dokument pre kontext odpovede (voliteľné). Ak nič nevyberiete, asistent odpovie z katalógu.</p>
+            <div id="selected-doc-indicator" class="selected-doc-indicator" style="display: none;" aria-live="polite"></div>
+          </div>
           <div class="input-section">
             <label for="q">Zadajte svoju otázku:</label>
             <textarea 
@@ -71,9 +90,9 @@
           </div>
 
           <div class="output-section">
-            <div class="output-header">
-              <span>📋</span>
-              <span>Odpoveď</span>
+            <div class="output-header output-header-row">
+              <span><span>📋</span> <span>Odpoveď</span></span>
+              <button type="button" id="btn-save-answer" class="btn-save-answer btn-save-disabled" title="Uložiť odpoveď do histórie" aria-disabled="true" onclick="saveAnswer(event)">Uložiť odpoveď</button>
             </div>
             <div id="out"></div>
           </div>
@@ -88,22 +107,10 @@
           <h1>História otázok</h1>
         </header>
         <div class="main-content">
-          <div class="placeholder-content">
-            <p>Obsah históriebude dostupný čoskoro...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Page 3: Nastavenia (placeholder) -->
-    <div class="page" id="page-page3">
-      <div class="container">
-        <header>
-          <h1>Nastavenia</h1>
-        </header>
-        <div class="main-content">
-          <div class="placeholder-content">
-            <p>Nastavenia budú dostupné čoskoro...</p>
+          <div id="history-container">
+            <div id="history-list" class="history-list"></div>
+            <div id="history-empty" class="history-empty">Žiadne uložené odpovede.</div>
+            <div id="history-loading" class="history-loading" style="display: none;">Načítavam...</div>
           </div>
         </div>
       </div>

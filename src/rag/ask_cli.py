@@ -42,9 +42,8 @@ def url_to_site_name(url: str) -> str:
         return url.strip()
 
 
-# Returns short 2-word description of page content from title, or from URL path if title empty.
+# Removes trailing Zdroje/Overenie sections from model answer to prevent duplication.
 def strip_trailing_source_sections(text: str) -> str:
-    """Odstráni z textu odpovede modelu sekcie Zdroje/Overenie, ktoré systém doplní sám – aby sa nezdvojovali."""
     if not text or not text.strip():
         return text
     for marker in ("\n## Zdroje", "\n## Overenie", "\n## 📚 Zdroje"):
@@ -59,8 +58,8 @@ WEB_SOURCES_MIN = 4
 WEB_SOURCES_MAX = 6
 
 
+# Normalizes URL for comparison (lowercased, trailing slash removed).
 def _normalize_web_url(url: str) -> str:
-    """Normalizuje URL na porovnanie (odstráni trailing slash, zjednotí)."""
     if not url or not url.strip():
         return ""
     u = url.strip()
@@ -69,8 +68,8 @@ def _normalize_web_url(url: str) -> str:
     return u.lower()
 
 
+# Removes duplicate web sources by URL or domain, keeping first occurrence.
 def dedupe_web_sources_by_url(sources: list, by_domain: bool = True) -> list:
-    """Odstráni duplicitné webové zdroje: podľa URL, alebo (ak by_domain) podľa domény – ponechá prvý výskyt každého URL/domény."""
     if not sources:
         return []
     seen = set()
@@ -95,8 +94,8 @@ def dedupe_web_sources_by_url(sources: list, by_domain: bool = True) -> list:
     return out
 
 
+# Limits the list of web sources to 4–6 items (configurable via min/max_sources).
 def limit_web_sources(sources: list, min_sources: int = None, max_sources: int = None) -> list:
-    """Obmedzí zoznam webových zdrojov na 4–6 (alebo min_sources–max_sources). Používa sa pre Zdroje (internet) aj Overenie v internete."""
     min_sources = min_sources if min_sources is not None else WEB_SOURCES_MIN
     max_sources = max_sources if max_sources is not None else WEB_SOURCES_MAX
     if not sources:
@@ -105,6 +104,7 @@ def limit_web_sources(sources: list, min_sources: int = None, max_sources: int =
     return sources[:n]
 
 
+# Returns a short 2-word description from page title or URL path for display.
 def short_description_from_title_and_url(title: str, url: str, max_words: int = 2) -> str:
     words = (title or "").strip().split()
     if len(words) >= max_words:
@@ -279,8 +279,8 @@ CLAUDE_WEB_SEARCH_MODELS = [
 NEED_WEB_MARKER = "NEED_WEB_SEARCH"
 
 
+# Removes trailing NEED_WEB_SEARCH marker and search query line from answer text.
 def _strip_need_web_from_answer(text: str) -> str:
-    """Remove any trailing NEED_WEB_SEARCH line and the following line (search query) from answer text."""
     if not text or NEED_WEB_MARKER not in text:
         return text
     idx = text.rfind(NEED_WEB_MARKER)
@@ -289,13 +289,13 @@ def _strip_need_web_from_answer(text: str) -> str:
     return text[:idx].rstrip()
 
 
+# Calls Anthropic Messages API with web_search tool and returns (answer_text, web_sources_list).
 def _call_claude_with_web_search(system_prompt: str, user_prompt: str, model: str, api_key: str):
-    """Call Anthropic Messages API with web_search_20250305 tool. Returns (answer_text, web_sources_list)."""
     import anthropic
-    client = anthropic.Anthropic(api_key=api_key)
+    client = anthropic.Anthropic(api_key=api_key, timeout=90.0)
     resp = client.messages.create(
         model=model,
-        max_tokens=2000,
+        max_tokens=3000,
         system=system_prompt,
         messages=[{"role": "user", "content": user_prompt}],
         tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": WEB_SEARCH_MAX_USES}],
@@ -369,9 +369,86 @@ def is_query_about_special_education(query: str) -> bool:
     )
     return any(term in q for term in topic_terms)
 
-# Main RAG entry: retrieves relevant docs, builds context, calls Anthropic (Claude), appends sources section and returns full answer.
-def ask(query: str) -> str:
-    if not is_query_about_special_education(query):
+# System prompt for answers based only on user-uploaded document (no catalog, no web).
+USER_DOCUMENT_SYSTEM = """Si asistent. Používateľ ti poskytol text svojho nahratého dokumentu (PDF alebo obrázok).
+
+Tvoja úloha:
+1. Odpovedaj VÝLUČNE na základe tohto dokumentu. Ak odpoveď na otázku v dokumente NIE JE – povedz to jasne (napr. "V poskytnutom dokumente sa táto informácia nenachádza.") a nevymýšľaj si.
+2. Ak v dokumente informáciu nájdeš – odpovedaj v slovenčine, môžeš citovať krátke úryvky z dokumentu v úvodzovkách.
+3. Štruktúruj odpoveď prehľadne (nadpisy ##, ###). Nepoužívaj číslovanie zdrojov [D1], [W1] – zdroj je len tento jeden dokument.
+4. Odpoveď musí byť úplná – nedokončené vety sú zakázané."""
+
+
+# Full model IDs for document-only flow (short names like "claude-3-5-sonnet" often return 404).
+DOCUMENT_MODEL_FALLBACKS = [
+    "claude-3-5-sonnet-20241022",
+    "claude-3-5-haiku-20241022",
+    "claude-sonnet-4-20250514",
+    "claude-3-5-haiku",
+]
+
+
+# Answers using only the user-uploaded document context, without FAISS or web search.
+def _ask_with_user_document(query: str, document_text: str) -> str:
+    load_api_keys()
+    ANTHROPIC = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    if not ANTHROPIC:
+        return "Chyba: ANTHROPIC_API_KEY nie je nastavený. Pridajte ho do api_keys.env."
+    # Truncate very long documents to avoid token limits (keep first ~100k chars)
+    if len(document_text) > 100000:
+        document_text = document_text[:100000] + "\n\n[... dokument skrátený ...]"
+    user_content = f"""Dokument používateľa (nahratý súbor):
+
+{document_text}
+
+---
+
+Otázka: {query}
+
+Odpovedaj výhradne na základe vyššie uvedeného dokumentu."""
+    from langchain_anthropic import ChatAnthropic
+
+    user_model = (os.environ.get("ANTHROPIC_MODEL", "") or "").strip()
+    models_to_try = [user_model] if user_model else []
+    models_to_try.extend(m for m in DOCUMENT_MODEL_FALLBACKS if m not in models_to_try)
+    if not models_to_try or not models_to_try[0]:
+        models_to_try = DOCUMENT_MODEL_FALLBACKS.copy()
+
+    last_error = None
+    for model in models_to_try:
+        if not model:
+            continue
+        try:
+            llm = ChatAnthropic(
+                model=model,
+                temperature=0,
+                max_tokens=3000,
+                api_key=ANTHROPIC,
+            )
+            resp = llm.invoke([("system", USER_DOCUMENT_SYSTEM), ("user", user_content)])
+            text = resp.content if hasattr(resp, "content") else str(resp)
+            return (text or "").strip() or "Prázdna odpoveď."
+        except Exception as e:
+            last_error = e
+            err_str = str(e).lower()
+            # 404 / not_found = wrong model id → try next
+            if "404" in err_str or "not_found" in err_str:
+                continue
+            # Other errors (rate limit, auth, etc.) surface immediately
+            return f"Chyba pri odpovedi z dokumentu: {str(e)}"
+
+    return f"Chyba pri odpovedi z dokumentu: {last_error!s}"
+
+
+# Main RAG entry: searches FAISS, builds context, calls Claude API and returns answer with sources.
+def ask(query: str, user_document_context: str | None = None) -> str:
+    doc_text = (user_document_context or "").strip()
+    if doc_text:
+        query_ok = is_query_about_special_education(query)
+        document_ok = is_query_about_special_education(doc_text)
+        if not query_ok and not document_ok:
+            return OFF_TOPIC_MESSAGE
+    elif not is_query_about_special_education(query):
         return OFF_TOPIC_MESSAGE
 
     vs = get_vectorstore()
@@ -499,19 +576,25 @@ def ask(query: str) -> str:
 
     context = "\n\n".join(context_blocks)
 
-    # --- Režim: FAISS má odpoveď (answer + verify) alebo len internet (internet_only) ---
-    # Ak FAISS má odpoveď: odpoveď z dokumentov, cituj len [D#], VŽDY web na overenie/doplnenie → na konci Zdroje (dokumenty) + Overenie v internete.
-    # Ak FAISS nemá odpoveď alebo ide o kontakty/vyhľadávanie: odpoveď len z webu, cituj [W#] → na konci Zdroje (internet).
+    # Optional: user-uploaded document as extra context (same flow as without doc: FAISS + web)
+    user_doc_block = ""
+    if doc_text:
+        truncated = doc_text[:100000] + "\n\n[... dokument skrátený ...]" if len(doc_text) > 100000 else doc_text
+        user_doc_block = f"\n\nDokument používateľa (priložený súbor):\n---\n{truncated}\n---\n"
+
+
+
+
     need_web_only = not faiss_has_answer or is_contact_or_lookup_query(query)
     if faiss_has_answer:
-        router_system = """Si asistent. Hľadáš odpoveď VÝLUČNE v poskytnutých dokumentoch z katalógu (číslované [D1], [D2], ...).
+        router_system = """Si asistent. Hľadáš odpoveď VÝLUČNE v poskytnutých dokumentoch z katalógu (číslované [D1], [D2], ...) a prípadne v dokumente používateľa (priložený súbor).
 
 Ak v dokumentoch NÁJDEŠ dostatočnú odpoveď – napíš PLNÚ odpoveď v slovenčine s citáciami [D1], [D2], ... Nič iné.
 Ak odpoveď v dokumentoch NENÁJDEŠ alebo je len čiastočná – NEPÍŠ že nemáš informácie. Namiesto toho napíš IBA dva riadky: prvý riadok presne NEED_WEB_SEARCH, druhý riadok jeden vyhľadávací dotaz v slovenčine. Systém potom vyhľadá na webe a ty odpovieš z webových zdrojov."""
         router_user = f"""Otázka: {query}
 
 Dokumenty (kontext [D1], [D2], ...):
-{context}
+{context}{user_doc_block}
 
 Odpoveď v dokumentoch? Ak áno – plná odpoveď s [D1], [D2]. Ak nie – NEED_WEB_SEARCH a dotaz."""
 
@@ -559,27 +642,36 @@ PRAVIDLÁ:
 - Štruktúra a vzhľad: zvýraznené sú LEN nadpisy (##, ###). Adresy, telefóny, e-maily a bežné odseky píš bez ** (bez tučného). Cieľ: čitateľná štruktúra, bez „polovice textu zvýraznenej“.
 - DÔLEŽITÉ: Odpoveď musí byť úplná – nepíš "..." ani neorezávaj text, vždy dokonči všetky sekcie. Každé vetu vždy dopíš do konca – nikdy nekonč v polovici vety ani nevynechávaj koniec myšlienky.
 - ZAKAZANÉ: Ponechávať prázdne odrážky alebo prázdne položky zoznamu. Každá odrážka (•) alebo číslovaný bod MUSÍ mať za sebou text. Ak nemáš čo napísať k bodu, vynechaj ho – nikdy nepíš len „•“ alebo „-“ bez textu.
-- KRITICKÉ: NIKDY nepíš, že nemáš informácie, že nemôžeš odpovedať, že v dokumentoch to nie je alebo že zdroje sú nedostatočné. Vždy poskytni konkrétnu odpoveď na základe dostupných dokumentov [D#] alebo webových zdrojov [W#]. Ak máš k dispozícii webové výsledky – odpovedaj z nich; ak dokumenty – z nich. Odmietnutie odpovede je ZAKAZANÉ."""
+- KRITICKÉ: NIKDY nepíš, že nemáš informácie, že nemôžeš odpovedať, že v dokumentoch to nie je alebo že zdroje sú nedostatočné. Vždy poskytni konkrétnu odpoveď na základe dostupných dokumentov [D#] alebo webových zdrojov [W#]. Ak máš k dispozícii webové výsledky – odpovedaj z nich; ak dokumenty – z nich. Odmietnutie odpovede je ZAKAZANÉ.
+- Ak je v kontexte „Dokument používateľa (priložený súbor)“, zohľadni ho spolu s katalógom [D#] a webom; môžeš sa na neho odvolať ako na „priložený dokument“ alebo „v dokumente používateľa“."""
 
-    def _build_user_prompt(context: str, sources_info: list, query: str, internet_only: bool = False) -> str:
+    # Builds the user prompt for Claude from context, sources and query.
+    def _build_user_prompt(context: str, sources_info: list, query: str, internet_only: bool = False, user_document_block: str = "") -> str:
         doc_sources = [s for s in sources_info if s.get("source") != "web"]
         available_docs = "\n".join([f"[{s.get('label', 'D'+str(s['num']))}] {s['title']}" for s in doc_sources])
         if internet_only:
-            return f"""Otázka: {query}
+            prompt = f"""Otázka: {query}
 
 Režim „odpoveď len z webu“: odpovedaj VÝLUČNE z výsledkov webového vyhľadávania. Cituj 3 až 6 zdrojov [W1]–[W6] pri každom dôležitom fakte (čísla, adresy, telefóny, názvy). Na konci sa zobrazí „Zdroje (internet)“ so 4–6 zdrojmi.
 NIKDY nepíš, že informácia chýba – vždy sformuluj odpoveď z nižšie poskytnutých webových výsledkov."""
-        return f"""Otázka: {query}
+            if user_document_block:
+                prompt += "\n\n" + user_document_block.strip()
+            return prompt
+        body = f"""Otázka: {query}
 
 Dostupné dokumenty (cituj ako [D1], [D2], …):
 {available_docs}
 
 Kontekst z dokumentov:
 {context}
-
+"""
+        if user_document_block:
+            body += user_document_block
+        body += """
 Odpoveď zakladaj na dokumentoch a cituj VÝHRADNE [D1], [D2], [D3]. Systém ti zároveň poskytne výsledky z internetu na overenie a doplnenie – použi ich na overenie/doplnenie informácií, ale v texte NEPÍŠ [W1], [W2]; webové zdroje sa zobrazia na konci v sekcii „Overenie v internete“. V texte teda len [D#].
 NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dokumentov a over/dopĺňaj cez web.
 """
+        return body
 
     ANTHROPIC = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     result_parts = []
@@ -636,13 +728,13 @@ NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dok
                     llm = ChatAnthropic(
                         model=model_to_try,
                         temperature=0,
-                        max_tokens=2000,
+                        max_tokens=3000,
                         api_key=ANTHROPIC
                     )
                     need_second_call = need_web_only
                     if not need_web_only:
                         router_resp = None
-                        attempts = 2  # max 2 retries (529/Overloaded) – zníži počet platených volaní
+                        attempts = 2  
                         for attempt in range(attempts):
                             try:
                                 router_resp = llm.invoke([("system", router_system), ("user", router_user)])
@@ -664,7 +756,7 @@ NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dok
 
                     if need_second_call:
                         answer_mode = "internet_only"
-                        user_prompt = _build_user_prompt(context, sources_info, query, internet_only=True)
+                        user_prompt = _build_user_prompt(context, sources_info, query, internet_only=True, user_document_block=user_doc_block)
                         try:
                             answer_text, web_sources = _call_claude_with_web_search(
                                 system_prompt, user_prompt, web_model, ANTHROPIC
@@ -686,7 +778,7 @@ NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dok
                             resp = True
                     else:
                         answer_mode = "faiss_verify"
-                        user_prompt = _build_user_prompt(context, sources_info, query, internet_only=False)
+                        user_prompt = _build_user_prompt(context, sources_info, query, internet_only=False, user_document_block=user_doc_block)
                         try:
                             answer_text, web_sources = _call_claude_with_web_search(
                                 system_prompt, user_prompt, web_model, ANTHROPIC
@@ -727,6 +819,7 @@ NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dok
 
     model_answer = "\n".join(result_parts) if result_parts else ""
 
+    # Extracts cited label numbers (e.g. D1, D2) from the answer text.
     def extract_cited_labels(answer_text: str, prefix: str) -> set:
         text = answer_text
         for sep in ("## Zdroje", "## 📚 Zdroje"):
@@ -780,8 +873,9 @@ NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dok
 if __name__ == "__main__":
     query = " ".join(sys.argv[1:]).strip() or \
         "Žiak s ADHD nevydrží 10 minút sústredenia – čo odporúčate na úrovni 1–3?"
+    user_doc = os.environ.pop("USER_DOCUMENT_CONTEXT", "").strip() or None
     try:
-        result = ask(query)
+        result = ask(query, user_document_context=user_doc)
         print(result)
     except Exception as e:
         sys.exit(1)

@@ -43,8 +43,14 @@ Thumbs.db
 # Project specific
 rag_index/
 data_raw/
+uploads/
 *.env
 api_keys.env
+app.db
+auth.db
+
+# Windows Zone.Identifier (alternate data streams)
+*Zone.Identifier
 
 # Docker
 # Docker environment files (містять секрети)
@@ -75,6 +81,5 @@ docker/*.log
 *.tmp
 *.temp
 
-README.md
-
-FEEDBACK_ANALYSIS.md
+README123.md
+project_structure.md
