@@ -81,5 +81,5 @@ docker/*.log
 *.tmp
 *.temp
 
-README123.md
 project_structure.md
+prezentacia/
