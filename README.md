@@ -103,6 +103,99 @@ __3. Autorizácia__
 - **Registrácia/prihlásenie** — prostredníctvom `/api/register` a `/api/login`. Heslo je uložené ako hash. Po úspešnom prihlásení sa `užívateľské meno` zaznamená do relácie.
 - **Middleware** kontroluje každú požiadavku: pre cesty ako `/dashboard`, `/api/ask`, `/api/documents`, `/api/saved` je potrebná relácia. Ak relácia neexistuje, vráti sa 401 alebo presmerovanie na domovskú stránku.
 - Všetky údaje (dokumenty, koncepty, uložené odpovede) sú prepojené s **user_id**, takže jeden používateľ nemôže vidieť dokumenty a históriu iných používateľov.
+
+
+
+## Spustenie projektu
+
+__1.Požiadavky__
+
+- Python 3.11+
+- Git
+- (voliteľne) Docker + Docker Compose
+
+__2.Klonovanie repozitára__
+
+```bash
+git clone <URL_REPOZITARA>
+cd bp2026
+```
+
+__3.Lokálne spustenie__
+
+Vytvor virtuálne prostredie a aktivuj ho:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Nainštaluj závislosti:
+
+```bash
+pip install -r requirements.txt
+```
+
+V koreňovom adresári vytvor súbor `api_keys.env` a doplň minimálne:
+
+```env
+ANTHROPIC_API_KEY=...
+# voliteľne:
+# ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+# SESSION_SECRET=...
+```
+
+Ak ešte nemáš pripravený index `rag_index/faiss_e5`, spusti:
+
+```bash
+python src/ingest/10_convert_docling.py
+python src/ingest/20_normalize_json.py
+python src/rag/build_index_e5.py
+```
+
+Spusť aplikáciu:
+
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Otvor v prehliadači:
+
+- `http://localhost:8000`
+- API dokumentácia: `http://localhost:8000/docs`
+
+__3.Spustenie cez Docker__
+
+Prejdi do priečinka `docker`:
+
+```bash
+cd docker
+```
+
+Vytvor `docker/.env` (podľa `docker-compose.yml`) a nastav premenné:
+
+```env
+ANTHROPIC_API_KEY=...
+SESSION_SECRET=...
+```
+
+Spusť kontajner:
+
+```bash
+docker compose up --build
+```
+
+Aplikácia bude dostupná na:
+
+- `http://localhost:8000`
+
+__4.Rýchly test evaluácie__
+
+```bash
+python evaluation/evaluate.py --ids 4 5
+```
+
+Výsledky sa ukladajú do `evaluation/results/`.
 ________
 # Bachelor thesis - Intelligent agent for supporting the work of special educators (en)
 ## About the project
@@ -209,6 +302,102 @@ __3. Authorization__
 - **Registration/login** — via `/api/register` and `/api/login`; the password is stored as a hash. After a successful login, the `username` is recorded in the session.
 - **Middleware** checks each request: for paths such as `/dashboard`, `/api/ask`, `/api/documents`, `/api/saved`, a session is required; if there is no session, 401 or a redirect to the home page is returned.
 - All data (documents, drafts, saved answers) is linked to **user_id**, so one user cannot see other users' documents and history.
+
+
+## Project Startup
+
+__1.Requirements__
+
+- Python 3.11+
+- Git
+- (optional) Docker + Docker Compose
+
+__2.Clone the repository__
+
+```bash
+git clone <REPO_URL>
+cd bp2026
+```
+
+__3.Local startup__
+
+Create and activate virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+In the project root, create `api_keys.env` and add at least:
+
+```env
+ANTHROPIC_API_KEY=...
+# optional:
+# ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+# SESSION_SECRET=...
+```
+
+If `rag_index/faiss_e5` is not built yet, run:
+
+```bash
+python src/ingest/10_convert_docling.py
+python src/ingest/20_normalize_json.py
+python src/rag/build_index_e5.py
+```
+
+Start the app:
+
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Open in browser:
+
+- `http://localhost:8000`
+- API docs: `http://localhost:8000/docs`
+
+__4.Startup with Docker__
+
+Go to `docker` directory:
+
+```bash
+cd docker
+```
+
+Create `docker/.env` (according to `docker-compose.yml`) and set:
+
+```env
+ANTHROPIC_API_KEY=...
+SESSION_SECRET=...
+```
+
+Start container:
+
+```bash
+docker compose up --build
+```
+
+App will be available at:
+
+- `http://localhost:8000`
+
+__5.Quick evaluation test__
+
+```bash
+python evaluation/evaluate.py --ids 4 5
+```
+
+Results are saved in `evaluation/results/`.
+
+
+
+
 
 
 
