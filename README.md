@@ -17,6 +17,13 @@ bp2026/
 ├── docs/
 │   └── test_questions.md       # Testové otázky pre agenta
 │
+├── evaluation/
+│   ├── dataset.json             #dataset otazok pre hodnotenia
+│   ├── evaluate.py              #skript na hodnotenia
+│   └── results/
+│       ├── eval_20260220_191145.json
+│       └── evaluation_report.md
+│
 ├── src/
 │   ├── config.py               # Všeobecná konfigurácia (cesty, nahrané súbory)
 │   ├── auth_db.py              # Databáza používateľov / autorizácia
@@ -215,6 +222,13 @@ bp2026/
 │
 ├── docs/
 │   └── test_questions.md       # Test questions for agent
+│
+├── evaluation/
+│   ├── dataset.json             #dataset for evaluate
+│   ├── evaluate.py              #script for evaluate
+│   └── results/
+│       ├── eval_20260220_191145.json
+│       └── evaluation_report.md
 │
 ├── src/
 │   ├── config.py               # General configuration (paths, uploads)
