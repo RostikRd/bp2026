@@ -1,6 +1,3 @@
-"""
-Shared config for DB path and document uploads.
-"""
 import os
 from pathlib import Path
 

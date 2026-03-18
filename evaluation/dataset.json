@@ -1,0 +1,232 @@
+{
+  "description": "Testovací dataset – 10 otázok pre každú kategóriu (30 celkom)",
+  "questions": [
+
+    {"id": 1, "question": "Aká bude zajtra počasie?", "category": "off_topic"},
+    {"id": 2, "question": "Ako uvariť bryndzové halušky?", "category": "off_topic"},
+    {"id": 3, "question": "Kedy začína futbalová liga?", "category": "off_topic"},
+    {"id": 4, "question": "Koľko obyvateľov má Bratislava?", "category": "off_topic"},
+    {"id": 5, "question": "Aké je hlavné mesto Francúzska?", "category": "off_topic"},
+    {"id": 6, "question": "Ako opraviť kvapkajúci kohútik v kúpeľni?", "category": "off_topic"},
+    {"id": 7, "question": "Odporuč mi dobrý film na večer.", "category": "off_topic"},
+    {"id": 8, "question": "Ako sa naučiť programovať v Pythone?", "category": "off_topic"},
+    {"id": 9, "question": "Koľko kalórií má pizza Margherita?", "category": "off_topic"},
+    {"id": 10, "question": "Kedy pristál človek na Mesiaci?", "category": "off_topic"},
+
+    {
+      "id": 11,
+      "question": "Žiak 2. ročníka má dyslexiu a má problémy s čítaním a porozumením textu. Aké podporné opatrenia na úrovni 1 a 2 odporúčate?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať opatrenia na úrovni 1 – individualizácia priamo v triede (úprava tempa, vizuálne pomôcky pri čítaní)",
+        "Má obsahovať opatrenia na úrovni 2 – úpravy hodnotenia, prípadne individuálny vzdelávací plán",
+        "Má odporúčať konkrétne stratégie pre čítanie s porozumením (predčítanie, zvýrazňovanie kľúčových slov, skrátené texty)",
+        "Má odkazovať na katalóg podporných opatrení s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 12,
+      "question": "Žiak so špeciálnymi potrebami má problémy s písomkami a testami. Ako upraviť hodnotenie a aké opatrenia na úrovni 2 môžeme uplatniť?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať úpravy formy hodnotenia (ústne skúšanie namiesto písomného, predĺženie času)",
+        "Má obsahovať úpravy obsahu hodnotenia (zjednodušenie formulácie otázok, redukcia počtu úloh)",
+        "Má odporúčať alternatívne formy overovania vedomostí",
+        "Má sa vzťahovať na úroveň 2 podporných opatrení",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 13,
+      "question": "Ako podporiť žiaka s ASD pri zmene režimu a prechodoch?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať využitie vizuálnych rozvrhov a vizuálnych pomôcok",
+        "Má odporúčať prechodové rituály alebo signály (upozornenie pred zmenou aktivity)",
+        "Má obsahovať štruktúrovanie prostredia a predvídateľnosť režimu",
+        "Má zohľadniť senzorické potreby žiaka s ASD",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 14,
+      "question": "Žiak s ADHD nevydrží 10 minút sústredenia – čo odporúčate na úrovni 1–3?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať opatrenia na úrovni 1 (skrátenie úloh, striedanie aktivít, prestávky)",
+        "Má obsahovať opatrenia na úrovni 2 (individuálny prístup, úpravy hodnotenia)",
+        "Má obsahovať opatrenia na úrovni 3 (zapojenie odborníka, špeciálno-pedagogická intervencia)",
+        "Má odporúčať konkrétne stratégie pre udržanie pozornosti (časové signály, rozdelenie úloh)",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 15,
+      "question": "Aké podporné opatrenia sú vhodné pre žiaka s dysgrafiou v 3. ročníku?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať úpravy v oblasti písomného prejavu (zníženie nárokov na grafickú stránku písma)",
+        "Má odporúčať alternatívne formy záznamu (práca na počítači, ústne odpovede)",
+        "Má zahŕňať cvičenia grafomotoriky",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 16,
+      "question": "Žiak so sluchovým postihnutím nastupuje do bežnej triedy. Aké opatrenia na úrovni 2 odporúčate?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať úpravy komunikácie (vizuálna opora, písomné inštrukcie)",
+        "Má odporúčať úpravy prostredia (sedenie vpredu, zníženie hluku)",
+        "Má zahŕňať úpravy hodnotenia zohľadňujúce sluchové postihnutie",
+        "Má sa vzťahovať na úroveň 2 podporných opatrení",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 17,
+      "question": "Ako upraviť prostredie v triede pre žiaka s hypersenzitivitou na hluk?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať úpravy priestoru (tichý kútik, tlmenie hluku, sedenie ďalej od dverí a okien)",
+        "Má odporúčať senzorické prestávky",
+        "Má zahŕňať triedne pravidlá o hluku",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 18,
+      "question": "Žiak s poruchou správania často vyrušuje na hodine. Aké opatrenia na úrovni 1 môže učiteľ uplatniť?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať stratégie riadenia správania v triede (jasné pravidlá, pozitívne posilňovanie)",
+        "Má odporúčať úpravy organizácie hodiny (striedanie aktivít, pohybové prestávky)",
+        "Má zahŕňať individuálny prístup (umiestnenie v triede, neverbálne signály)",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 19,
+      "question": "Aké sú rozdiely medzi úrovňami podporných opatrení 1, 2 a 3 podľa katalógu?",
+      "category": "faiss",
+      "reference_points": [
+        "Má jasne vysvetliť úroveň 1 (všeobecné opatrenia, realizuje učiteľ v triede)",
+        "Má jasne vysvetliť úroveň 2 (cielené opatrenia, vyžadujú odborné vyjadrenie)",
+        "Má jasne vysvetliť úroveň 3 (intenzívne opatrenia, zapojenie špecialistov)",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+    {
+      "id": 20,
+      "question": "Ako podporiť sociálno-komunikačné zručnosti žiaka s autizmom v triede?",
+      "category": "faiss",
+      "reference_points": [
+        "Má obsahovať stratégie na rozvoj sociálnych zručností (sociálne príbehy, modelovanie, nácvik)",
+        "Má odporúčať štruktúrované interakcie s rovesníkmi",
+        "Má zahŕňať vizuálne pomôcky pre komunikáciu",
+        "Má odkazovať na katalóg s citáciami [D#]"
+      ]
+    },
+
+    {
+      "id": 21,
+      "question": "Aký je kontakt na Štátny pedagogický ústav alebo Národný ústav vzdelávania a mládeže pre podporné opatrenia?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať názov inštitúcie (NIVaM alebo nástupnícka organizácia)",
+        "Má obsahovať kontaktné údaje (adresa, telefón, e-mail alebo web)",
+        "Informácie musia byť aktuálne"
+      ]
+    },
+    {
+      "id": 22,
+      "question": "Kde nájdem aktuálny zoznam špeciálno-pedagogických centier na Slovensku?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať odkaz na relevantný zdroj (MŠVVaŠ SR, NIVaM alebo iný oficiálny portál)",
+        "Má vysvetliť, kde presne zoznam nájsť",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 23,
+      "question": "Čo hovorí novela školského zákona 2024 o podporných opatreniach?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať informácie o zmenách v legislatíve týkajúcich sa podporných opatrení",
+        "Má odkazovať na konkrétny zákon alebo novelu",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 24,
+      "question": "Kde nájdem vzory individuálneho vzdelávacieho programu (IVP) pre žiakov so špeciálnymi potrebami?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať odkaz na zdroj so vzormi IVP",
+        "Má vysvetliť, čo má IVP obsahovať",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 25,
+      "question": "Aký je aktuálny postup na podanie žiadosti o asistenta učiteľa na škole?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať postup podania žiadosti",
+        "Má uviesť kto žiadosť podáva a kam",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 26,
+      "question": "Aké sú podmienky na zriadenie špeciálnej triedy v bežnej základnej škole podľa aktuálnej legislatívy?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať legislatívne podmienky (počet žiakov, odborné zabezpečenie)",
+        "Má odkazovať na konkrétny zákon alebo vyhlášku",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 27,
+      "question": "Ako funguje systém poradenských zariadení (CPPPaP) na Slovensku po reforme?",
+      "category": "web_only",
+      "reference_points": [
+        "Má vysvetliť štruktúru poradenského systému po reforme",
+        "Má uviesť úlohy centra poradenstva a prevencie",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 28,
+      "question": "Aké finančné príspevky môže škola získať na podporné opatrenia pre žiakov so ŠVVP?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať informácie o normatívnych príspevkoch alebo grantoch",
+        "Má uviesť zdroj financovania (MŠVVaŠ SR, zriaďovateľ)",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 29,
+      "question": "Aká je aktuálna vyhláška o podporných opatreniach vo výchove a vzdelávaní?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať číslo a názov vyhlášky",
+        "Má uviesť kľúčové ustanovenia",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    },
+    {
+      "id": 30,
+      "question": "Aké práva majú rodičia žiaka so ŠVVP podľa aktuálnej legislatívy na Slovensku?",
+      "category": "web_only",
+      "reference_points": [
+        "Má obsahovať konkrétne práva rodičov (informovaný súhlas, účasť na IVP, odvolanie)",
+        "Má odkazovať na zákon alebo vyhlášku",
+        "Má obsahovať webové citácie [W#]"
+      ]
+    }
+  ]
+}

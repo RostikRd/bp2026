@@ -1,35 +1,35 @@
-# Основні залежності для RAG системи
+# Core dependencies for the RAG system
 chromadb>=0.4.0
 rich>=13.0.0
 numpy>=1.24.0
 python-multipart
 
-# Для обробки документів
+# For document processing
 pathlib2>=2.3.0
 
-# Додаткові утиліти
+# Additional utilities
 tqdm>=4.65.0
 python-dotenv>=1.0.0
 
-# FastAPI та веб-сервер
+# FastAPI and web server
 fastapi
 uvicorn[standard]
 itsdangerous
 
-# LangChain екосистема
+# LangChain ecosystem
 anthropic
 langchain-community
 langchain-huggingface
 langchain-text-splitters
 langchain-anthropic
 
-# Векторка
+# Vector search
 faiss-cpu
 
-# Конвертації
+# Conversions
 docling>=2.1.0
 
-# Основний LangChain
+# Core LangChain
 langchain
 sentence-transformers>=2.2.0,<3.0.0
 langchain-huggingface>=0.0.6
