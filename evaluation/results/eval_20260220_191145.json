@@ -108,9 +108,9 @@
       "best_l2": 0.2186,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 2,
+        "faithfulness": 4,
         "relevance": 5,
-        "context_relevance": 2,
+        "context_relevance": 3,
         "correctness": 5,
         "completeness": 5
       },
@@ -131,7 +131,7 @@
       "best_l2": 0.2543,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 4,
+        "faithfulness": 5,
         "relevance": 5,
         "context_relevance": 4,
         "correctness": 5,
@@ -154,9 +154,9 @@
       "best_l2": 0.3217,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 3,
+        "faithfulness": 4,
         "relevance": 5,
-        "context_relevance": 3,
+        "context_relevance": 4,
         "correctness": 4,
         "completeness": 4
       },
@@ -177,9 +177,9 @@
       "best_l2": 0.3004,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 3,
+        "faithfulness": 4,
         "relevance": 5,
-        "context_relevance": 3,
+        "context_relevance": 5,
         "correctness": 4,
         "completeness": 4
       },
@@ -200,9 +200,9 @@
       "best_l2": 0.3456,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 3,
-        "relevance": 5,
-        "context_relevance": 3,
+        "faithfulness": 4,
+        "relevance": 4,
+        "context_relevance": 5,
         "correctness": 4,
         "completeness": 4
       },
@@ -223,7 +223,7 @@
       "best_l2": 0.2891,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 4,
+        "faithfulness": 5,
         "relevance": 5,
         "context_relevance": 4,
         "correctness": 5,
@@ -247,7 +247,7 @@
       "faiss_has_answer": true,
       "scores": {
         "faithfulness": 3,
-        "relevance": 5,
+        "relevance": 4,
         "context_relevance": 3,
         "correctness": 4,
         "completeness": 4
@@ -269,9 +269,9 @@
       "best_l2": 0.3541,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 3,
+        "faithfulness": 4,
         "relevance": 4,
-        "context_relevance": 3,
+        "context_relevance": 5,
         "correctness": 4,
         "completeness": 4
       },
@@ -315,9 +315,9 @@
       "best_l2": 0.3109,
       "faiss_has_answer": true,
       "scores": {
-        "faithfulness": 3,
+        "faithfulness": 4,
         "relevance": 5,
-        "context_relevance": 3,
+        "context_relevance": 4,
         "correctness": 4,
         "completeness": 3
       },

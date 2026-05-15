@@ -15,7 +15,7 @@
 
     {
       "id": 11,
-      "question": "Žiak 2. ročníka má dyslexiu a má problémy s čítaním a porozumením textu. Aké podporné opatrenia na úrovni 1 a 2 odporúčate?",
+      "question": "Žiak 2. ročníka základnej školy s dyslexiou číta pomaly a nerozumie textu. Navrhnite opatrenia na úrovni 1 a 2 pre prácu na hodine aj hodnotenie.",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať opatrenia na úrovni 1 – individualizácia priamo v triede (úprava tempa, vizuálne pomôcky pri čítaní)",
@@ -26,7 +26,7 @@
     },
     {
       "id": 12,
-      "question": "Žiak so špeciálnymi potrebami má problémy s písomkami a testami. Ako upraviť hodnotenie a aké opatrenia na úrovni 2 môžeme uplatniť?",
+      "question": "Žiak so špeciálnymi výchovno-vzdelávacími potrebami opakovane zlyháva v písomkách a testoch napriek príprave. Aké úpravy hodnotenia a opatrenia úrovne 2 má škola zaviesť?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať úpravy formy hodnotenia (ústne skúšanie namiesto písomného, predĺženie času)",
@@ -38,7 +38,7 @@
     },
     {
       "id": 13,
-      "question": "Ako podporiť žiaka s ASD pri zmene režimu a prechodoch?",
+      "question": "Ako má učiteľ na prvom stupni základnej školy podporiť žiaka s poruchou autistického spektra pri prechodoch medzi aktivitami a pri náhlej zmene denného režimu?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať využitie vizuálnych rozvrhov a vizuálnych pomôcok",
@@ -50,7 +50,7 @@
     },
     {
       "id": 14,
-      "question": "Žiak s ADHD nevydrží 10 minút sústredenia – čo odporúčate na úrovni 1–3?",
+      "question": "Žiak s poruchou pozornosti s hyperaktivitou sa nedokáže sústrediť dlhšie ako 10 minút. Uveďte praktické opatrenia na úrovniach 1, 2 a 3.",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať opatrenia na úrovni 1 (skrátenie úloh, striedanie aktivít, prestávky)",
@@ -62,7 +62,7 @@
     },
     {
       "id": 15,
-      "question": "Aké podporné opatrenia sú vhodné pre žiaka s dysgrafiou v 3. ročníku?",
+      "question": "Aké podporné opatrenia sú vhodné pre žiaka 3. ročníka základnej školy s dysgrafiou pri písaní, skúšaní a domácich úlohách?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať úpravy v oblasti písomného prejavu (zníženie nárokov na grafickú stránku písma)",
@@ -73,7 +73,7 @@
     },
     {
       "id": 16,
-      "question": "Žiak so sluchovým postihnutím nastupuje do bežnej triedy. Aké opatrenia na úrovni 2 odporúčate?",
+      "question": "Do bežnej triedy nastupuje žiak so sluchovým postihnutím. Aké opatrenia na úrovni 2 treba zaviesť v komunikácii, prostredí a hodnotení?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať úpravy komunikácie (vizuálna opora, písomné inštrukcie)",
@@ -85,7 +85,7 @@
     },
     {
       "id": 17,
-      "question": "Ako upraviť prostredie v triede pre žiaka s hypersenzitivitou na hluk?",
+      "question": "Aké úpravy triedy a organizácie vyučovania sú vhodné pre žiaka s hypersenzitivitou na hluk?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať úpravy priestoru (tichý kútik, tlmenie hluku, sedenie ďalej od dverí a okien)",
@@ -96,7 +96,7 @@
     },
     {
       "id": 18,
-      "question": "Žiak s poruchou správania často vyrušuje na hodine. Aké opatrenia na úrovni 1 môže učiteľ uplatniť?",
+      "question": "Žiak s poruchou správania pravidelne vyrušuje počas vyučovania. Ktoré opatrenia úrovne 1 môže učiteľ zaviesť okamžite v triede?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať stratégie riadenia správania v triede (jasné pravidlá, pozitívne posilňovanie)",
@@ -107,7 +107,7 @@
     },
     {
       "id": 19,
-      "question": "Aké sú rozdiely medzi úrovňami podporných opatrení 1, 2 a 3 podľa katalógu?",
+      "question": "Vysvetlite rozdiely medzi úrovňami podporných opatrení 1, 2 a 3 podľa katalógu: kto ich realizuje, pre koho sú určené a akú majú intenzitu.",
       "category": "faiss",
       "reference_points": [
         "Má jasne vysvetliť úroveň 1 (všeobecné opatrenia, realizuje učiteľ v triede)",
@@ -118,7 +118,7 @@
     },
     {
       "id": 20,
-      "question": "Ako podporiť sociálno-komunikačné zručnosti žiaka s autizmom v triede?",
+      "question": "Aké kroky môže učiteľ urobiť na rozvoj sociálno-komunikačných zručností žiaka s autizmom v bežnej triede?",
       "category": "faiss",
       "reference_points": [
         "Má obsahovať stratégie na rozvoj sociálnych zručností (sociálne príbehy, modelovanie, nácvik)",
@@ -140,7 +140,7 @@
     },
     {
       "id": 22,
-      "question": "Kde nájdem aktuálny zoznam špeciálno-pedagogických centier na Slovensku?",
+      "question": "Na ktorom oficiálnom webe je dostupný aktuálny zoznam špecializovaných centier poradenstva a prevencie na Slovensku a kde presne ho nájdem?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať odkaz na relevantný zdroj (MŠVVaŠ SR, NIVaM alebo iný oficiálny portál)",
@@ -150,7 +150,7 @@
     },
     {
       "id": 23,
-      "question": "Čo hovorí novela školského zákona 2024 o podporných opatreniach?",
+      "question": "Ktoré zmeny priniesla novela školského zákona účinná v roku 2024 v oblasti podporných opatrení?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať informácie o zmenách v legislatíve týkajúcich sa podporných opatrení",
@@ -160,7 +160,7 @@
     },
     {
       "id": 24,
-      "question": "Kde nájdem vzory individuálneho vzdelávacieho programu (IVP) pre žiakov so špeciálnymi potrebami?",
+      "question": "Kde sú dostupné oficiálne alebo odporúčané vzory individuálneho vzdelávacieho programu pre žiakov so špeciálnymi výchovno-vzdelávacími potrebami a aké povinné časti má tento program obsahovať?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať odkaz na zdroj so vzormi IVP",
@@ -170,7 +170,7 @@
     },
     {
       "id": 25,
-      "question": "Aký je aktuálny postup na podanie žiadosti o asistenta učiteľa na škole?",
+      "question": "Aký je aktuálny administratívny postup pri žiadosti školy o asistenta učiteľa: kto podáva žiadosť, kam sa podáva a aké prílohy sú potrebné?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať postup podania žiadosti",
@@ -180,7 +180,7 @@
     },
     {
       "id": 26,
-      "question": "Aké sú podmienky na zriadenie špeciálnej triedy v bežnej základnej škole podľa aktuálnej legislatívy?",
+      "question": "Aké legislatívne podmienky musí splniť bežná základná škola na zriadenie špeciálnej triedy?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať legislatívne podmienky (počet žiakov, odborné zabezpečenie)",
@@ -190,7 +190,7 @@
     },
     {
       "id": 27,
-      "question": "Ako funguje systém poradenských zariadení (CPPPaP) na Slovensku po reforme?",
+      "question": "Ako je po reforme organizovaný systém poradenstva a prevencie na Slovensku a aké kompetencie majú jednotlivé typy centier?",
       "category": "web_only",
       "reference_points": [
         "Má vysvetliť štruktúru poradenského systému po reforme",
@@ -200,7 +200,7 @@
     },
     {
       "id": 28,
-      "question": "Aké finančné príspevky môže škola získať na podporné opatrenia pre žiakov so ŠVVP?",
+      "question": "Z akých aktuálnych zdrojov môže škola financovať podporné opatrenia pre žiakov so špeciálnymi výchovno-vzdelávacími potrebami a za akých podmienok?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať informácie o normatívnych príspevkoch alebo grantoch",
@@ -210,7 +210,7 @@
     },
     {
       "id": 29,
-      "question": "Aká je aktuálna vyhláška o podporných opatreniach vo výchove a vzdelávaní?",
+      "question": "Uveďte aktuálne platnú vyhlášku upravujúcu podporné opatrenia vo výchove a vzdelávaní a jej kľúčové ustanovenia.",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať číslo a názov vyhlášky",
@@ -220,7 +220,7 @@
     },
     {
       "id": 30,
-      "question": "Aké práva majú rodičia žiaka so ŠVVP podľa aktuálnej legislatívy na Slovensku?",
+      "question": "Aké práva má rodič žiaka so špeciálnymi výchovno-vzdelávacími potrebami podľa aktuálnej slovenskej legislatívy?",
       "category": "web_only",
       "reference_points": [
         "Má obsahovať konkrétne práva rodičov (informovaný súhlas, účasť na IVP, odvolanie)",

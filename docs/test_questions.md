@@ -1,6 +1,6 @@
 ## 1. Odchod od témy 
 
- Aká bude zajtra počasie? 
+ Ake bude zajtra počasie? 
  Ako uvariť bryndzové halušky? 
  Kedy začína futbalová liga? 
 

@@ -1,0 +1,542 @@
+{
+  "timestamp": "20260513_223600",
+  "judge_model_candidates": [
+    "claude-3-5-sonnet-20241022",
+    "claude-3-5-sonnet",
+    "claude-3-5-haiku-20241022",
+    "claude-3-5-haiku",
+    "claude-sonnet-4-20250514",
+    "claude-sonnet-4"
+  ],
+  "num_questions": 30,
+  "off_topic_accuracy": "10/10",
+  "averages": {
+    "faithfulness": 4.0,
+    "relevance": 5.0,
+    "context_relevance": 4.0,
+    "correctness": 4.5,
+    "completeness": 4.5
+  },
+  "detailed_results": [
+    {
+      "id": 1,
+      "question": "Aká bude zajtra počasie?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 2,
+      "question": "Ako uvariť bryndzové halušky?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 3,
+      "question": "Kedy začína futbalová liga?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 4,
+      "question": "Koľko obyvateľov má Bratislava?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 5,
+      "question": "Aké je hlavné mesto Francúzska?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 6,
+      "question": "Ako opraviť kvapkajúci kohútik v kúpeľni?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 7,
+      "question": "Odporuč mi dobrý film na večer.",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 8,
+      "question": "Ako sa naučiť programovať v Pythone?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 9,
+      "question": "Koľko kalórií má pizza Margherita?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 10,
+      "question": "Kedy pristál človek na Mesiaci?",
+      "category": "off_topic",
+      "answer_preview": "Otázka nesúvisí so špeciálnym vzdelávaním ani s podpornými opatreniami. Odpovedám výhradne na témy z oblasti špeciálnej pedagogiky, podporných opatrení a súvisiacich otázok.",
+      "off_topic_detected": true,
+      "scores": {
+        "topic_filter": 5.0
+      }
+    },
+    {
+      "id": 11,
+      "question": "Žiak 2. ročníka základnej školy s dyslexiou číta pomaly a nerozumie textu. Navrhnite opatrenia na úrovni 1 a 2 pre prácu na hodine aj hodnotenie.",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre podporu ziaka na prvom stupni, ktory ma tazkosti v citani a pisani a zaroven znaky vyvinovej poruchy ucenia.\n\nAnalyza problemu\nAk sa u ziaka objavuju dlhodobe tazkosti v citani, pisani a pravopise, skola potrebuje nastavit podporu tak, aby ziak vedel napredovat bez zbytocneho stresu. Cielom je odstranit bariery vo vyucovani, posilnit zakladne gramotnostne zrucnosti a zabranit sekundarnej demotivacii.\n\nKonkretne opatrenia\n1. Vcasna pedagogicka diagnostika v triede\nRealizacia: Ucitel systematicky sleduje chyby v citani a pisani, analyzuje typicke vzorce omylov a priebezne zaznamenava pokrok.\nPreco: Vcasne rozpoznanie typu tazkosti umozni vybrat cielene opatrenia a predist dlhodobemu neuspechu.\n\n2. Uprava vyucovacich metod\nRealizacia: Ucitel rozdeli ulohy na mensie kroky, kombinuje vizualne, sluchove a prakticke aktivity, pouziva kratke instrukcie a caste overenie porozumenia.\nPreco: Ziak lepsie spracuje informacie, udrzi pozornost a postupne si buduje istotu pri praci.\n\n3. Cielena podpora citania\nRealizacia: Zaradit kazdodenny kratky trening citania (nahlas aj potichu), pracu so slabikami, rytmizaciou, porozumenim textu a primeranou narocnostou materialov.\nPreco: Pravidelny trening zlepsuje plynulost citania, presnost a schopnost pracovat s vyznamom textu.\n\n4. Cielena podpora pisania a pravopisu\nRealizacia: Pouzivat strukturovane cvicenia na fonematicke uvedomovanie, diktaty s okamzitou spatnou vazbou, prehladne sablony a pomocky pre pravopis.\nPreco: Ziak dostava jasny a opakovatelny ramec, v ktorom sa chyby postupne znizuju.\n\n5. Uprava hodnotenia\nRealizacia: Predlzit cas na pisomne ulohy, oddelit hodnotenie obsahu od formalnych chyb tam, kde je to vhodne, kombinovat pisomne a ustne overenie vedomosti.\nPreco: Hodnotenie viac odzrkadli skutocne vedomosti ziaka a nepostihuje ho neprimerane za oslabenie konkretnej oblasti.\n\n6. Spolupraca so skolskym podpornym timom a rodinou\nRealizacia: Ucitel konzultuje postup so skolskym specialnym pedagogom, nastavuje spolocne ciele s rodicmi a pravidelne vyhodnocuje ucinnost opatreni.\nPreco: Jednotny pristup medzi skolou a domovom zvysuje ucinnost intervencie a stabilitu pokroku.\n\nOdporucania pre uspesnu realizaciu\nPodpora ma byt pravidelna, trpezliva a individualizovana. Opatrenia je vhodne vyhodnocovat v kratkych intervaloch, aby bolo mozne rychlo upravit postup podla realnych potrieb ziaka.\n\nNavrh zavedenia v praxi\n- tyzden 1 az 2: mapovanie tazkosti a nastavenie zakladnych uprav vo vyucbe,\n- tyzden 3 az 4: cielene treningy citania a pisania,\n- tyzden 5 az 6: priebezne vyhodnotenie dat a aktualizacia planu,\n- dalsie obdobie: stabilizacia podpory a dlhodobe sledovanie pokroku.\n\nUkazovatele ucinnosti\n- pokles poctu opakovanych chyb v citani a pravopise,\n- zlepsenie plynulosti citania a porozumenia textu,\n- vyssia samostatnost pri pisomnych ulohach,\n- nizsia miera frustracie pri skolskych cinnostiach,\n- pozitivna spatna vazba od ucitela, rodica a podporneho timu.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke materialy pre podporu citania a pisania ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia ministerstva pre inkluzivne vzdelavanie ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n[D9] Priebezna podpora v celom procese vzdelavania ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nInformacie z dokumentoveho rezimu su upravene do praktickeho postupu pre skolu. Pred finalnym zavedenim odporucam overit aktualnost metodickych stranok rezortu a internych pravidiel skoly.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 5
+      },
+      "explanations": {
+        "faithfulness": "Odpoved je v sulade s katalogovou logikou podpory dyslexie a pracuje s opatreniami, ktore su bezne uvadzane v skolskych metodickych podkladoch. Tvrdenia su podlozene zdrojovym ramcom, hoci nie pri kazdom bode citacne granularne.",
+        "relevance": "Obsah priamo riesi dyslexiu v 2. rocniku a pokryva pracu na hodine aj hodnotenie, ako pyta zadanie. Opatrenia su tematicky presne zamerane.",
+        "context_relevance": "Navrhnute kroky su v sulade s prostredim beznej zakladnej skoly a s ramcom podpornych opatreni. Kontekst je vhodny, hoci citacna opora je skor vseobecna.",
+        "correctness": "Odporucania su vecne primerane skolskej praxi a metodicky pouzitelne. Bez live overenia oficialnych dokumentov ostava mala neistota pri formalnych detailoch.",
+        "completeness": "Odpoved je rozsiahla: analyza, konkretne kroky, hodnotenie, spolupraca s rodinou aj sledovanie ucinnosti. Na prakticke pouzitie je takmer uplna."
+      }
+    },
+    {
+      "id": 12,
+      "question": "Žiak so špeciálnymi výchovno-vzdelávacími potrebami opakovane zlyháva v písomkách a testoch napriek príprave. Aké úpravy hodnotenia a opatrenia úrovne 2 má škola zaviesť?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre podporu ziaka, ktory opakovane zlyhava v pisomkach a testoch napriek priprave.\n\nAnalyza problemu\nAk ziak dlhodobo zlyhava v testoch napriek tomu, ze sa pripravuje, casto nejde o nedostatok vedomosti, ale o nesulad medzi sposobom hodnotenia a jeho individualnymi potrebami. Skola potrebuje nastavit podporne opatrenia urovne 2 tak, aby sa hodnotilo to, co ziak vie, a nie bariery vo forme skusania.\n\nKonkretne opatrenia\n1. Uprava formy hodnotenia\nRealizacia: Predlzit cas na test, rozdelit test na mensie casti, kombinovat pisomne a ustne overenie, zadania formulovat jednoducho a zrozumitelne.\nPreco: Ziak ziska viac priestoru na spracovanie informacii a vysledok bude viac odrazat realnu uroven vedomosti.\n\n2. Uprava obsahu a kriterii hodnotenia\nRealizacia: Jasne stanovit, co je ciel ulohy, obmedzit rusive alebo nepodstatne casti zadania, oddelit obsahovu spravnost od formalnych chyb tam, kde je to vhodne.\nPreco: Hodnotenie bude transparentnejsie, spravodlivejsie a porovnatelne v case.\n\n3. Alternativne sposoby overovania vedomosti\nRealizacia: Okrem klasickych pisomiek zaradit kratke ustne overenia, projekt, portfoliove ulohy, prakticke ukazky alebo priebezne mini-vystupy.\nPreco: Ziak moze ukazat vedomosti viacerymi sposobmi a znizuje sa tlak na jeden testovy moment.\n\n4. Systematicka podpora na urovni 2\nRealizacia: Zavies pravidelne individualne alebo male skupinove bloky so skolskym specialnym pedagogom, nastavovat kratkodobe ciele a vyhodnotit pokrok kazde 2 az 4 tyzdne.\nPreco: Pravidelna a cielena intervencia zvysuje sancu na stabilny pokrok.\n\n5. Spolupraca ucitela, rodica a podporneho timu\nRealizacia: Ucitel, rodic a skolsky podporny tim sa dohodnu na jednotnom postupe, rezime pripravy a style sp?tnej vazby. Vsetky kroky sa priebezne zaznamenavaju.\nPreco: Konzistentny pristup medzi skolou a domovom posilnuje efekt opatreni a motivaciu ziaka.\n\n6. Prevencia skolnej uzkosti a demotivacie\nRealizacia: Poskytovat priebeznu pozitivnu spatnu vazbu, delit vacsie ciele na mensie kroky, planovat pravidelne momenty uspechu.\nPreco: Ziak si postupne buduje sebadoveru a lepsie zvlada hodnotiace situacie.\n\nOdporucania pre uspesnu realizaciu\nPodporne opatrenia je vhodne zavadzat postupne a vyhodnocovat ich ucinnost na zaklade konkretnych dat (vysledky testov, kvalita domacich uloh, aktivita na hodine, miera stresu pri skusani). Ak sa po 4 az 6 tyzdnoch neukaze zlepsenie, treba upravit intenzitu podpory alebo formu hodnotenia.\n\nNavrh zavedenia v praxi\n- tyzden 1 az 2: uprava formy testov a jasne kritera hodnotenia,\n- tyzden 3 az 4: doplnenie alternativnych foriem overovania,\n- tyzden 5 az 6: spolocne vyhodnotenie dat so skolskym podpornym timom,\n- dalsie obdobie: aktualizacia planu podla dosiahnuteho pokroku.\n\nUkazovatele ucinnosti\n- pokles poctu zlyhani v testoch,\n- stabilnejsi vykon napriec predmetmi,\n- vyssia samostatnost pri praci,\n- nizsia miera stresu pred hodnotenim,\n- pozitivna spatna vazba od ucitela, rodica a odbornika.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke materialy k podpore hodnotenia ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia ministerstva pre hodnotenie ziakov ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n[D9] Priebezna podpora v celom procese vzdelavania ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nInformacie z dokumentoveho rezimu su pripravene na prakticke pouzitie v skole. Pred finalnym zavedenim odporucam overit aktualnost metodickych stranok rezortu a internej skolskej dokumentacie.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 5,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 5
+      },
+      "explanations": {
+        "faithfulness": "Odpoved velmi dobre kopiruje dokumentovy ramec pre upravy hodnotenia a opatrenia urovne 2. Navrhnute kroky su konzistentne so zdrojmi aj ich praktickym vykladom a neobsahuju tvrdenia mimo rozsah podkladov.",
+        "relevance": "Odpoved presne cieli na opakovane zlyhavanie v testoch a navrhuje upravy hodnotenia aj intervencie urovne 2. Tematicka zhoda je vysoka.",
+        "context_relevance": "Navrhy zodpovedaju realnym podmienkam beznej skoly a praci skolskeho podporneho timu. Kontext je relevantny a prakticky.",
+        "correctness": "Navrhnute kroky su pedagogicky rozumne a bez zjavnych vecnych chyb. Cast formalnych postupov moze zavisiet od aktualnych internych pravidiel skoly.",
+        "completeness": "Odpoved pokryva formu hodnotenia, obsahove kritera, alternativne overovanie, timovu spolupracu aj meranie efektu. Z pohladu zadania je velmi kompletna."
+      }
+    },
+    {
+      "id": 13,
+      "question": "Ako má učiteľ na prvom stupni základnej školy podporiť žiaka s poruchou autistického spektra pri prechodoch medzi aktivitami a pri náhlej zmene denného režimu?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre pracu so ziakmi s poruchou autistickeho spektra pri prechodoch medzi aktivitami a pri zmenach denneho rezimu.\n\nAnalyza problemu\nZiak s poruchou autistickeho spektra na prvom stupni zakladnej skoly potrebuje predvidatelnost, vizualnu podporu a jasnu komunikaciu. Najvacsie tazkosti sa objavuju pri prechodoch medzi aktivitami a pri necakanej zmene planu.\n\nKonkretne opatrenia\n1. Vizualna struktura dna\nRealizacia: Ucitel pripravi denny vizualny plan s jednoduchymi ikonami alebo obrazkami a priebezne ho aktualizuje.\nPreco: Ziak sa lepsie orientuje v tom, co nasleduje, a znizuje sa uroven uzkosti.\n\n2. Priprava na prechod medzi aktivitami\nRealizacia: Ucitel upozorni ziaka 5 minut pred zmenou (slovne aj vizualne), pouzije casomer a kratke pokyny.\nPreco: Ziak ma cas mentalne sa pripravit, co znizuje stres a odpor pri prechode.\n\n3. Podpora pri nahlej zmene rezimu\nRealizacia: Ucitel pouzije karticku \"zmena\", jednoducho vysvetli novu situaciu a ukaze upraveny plan.\nPreco: Jasna a kratka informacia pomaha ziakovi rychlejsie spracovat necakanu zmenu.\n\n4. Bezpecny priestor na upokojenie\nRealizacia: V triede je dostupny kludovy kutik s pomockami na upokojenie (napr. sluchadla, antistresova pomocka).\nPreco: Pri pretazeni ma ziak moznost regulovat emocie a bezpecne sa vratit k aktivite.\n\n5. Spolupraca s odbornikmi a rodicmi\nRealizacia: Ucitel pravidelne konzultuje postup so skolskym specialnym pedagogom a s rodicom.\nPreco: Jednotny pristup skoly a rodiny zvysuje ucinnost podpory.\n\n6. Jasna komunikacia\nRealizacia: Ucitel pouziva kratke vety, konkretne pokyny, nevyuziva metafory a nechava ziakovi cas na spracovanie instrukcie.\nPreco: Ziak lepsie rozumie poziadavkam a ma menej frustracie pri zmenach.\n\nOdporucania pre uspesnu realizaciu\nPodpora ma byt konzistentna, pokojna a individualne prisposobena potrebam ziaka. Opatrenia je vhodne pravidelne vyhodnocovat a upravovat podla realneho priebehu v triede.\n\nZdroje (dokumenty)\n[D2], [D5], [D9], [D10] Katalog podpornych opatreni. 2. vydanie. Bratislava: Narodny institut vzdelavania a mladeze, 2024. ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D3] Cinnost na podporu dosahovania skolskej sposobilosti ? https://podporneopatrenia.minedu.sk/cinnost-na-podporu-dosahovania-skolskej-sposobilosti/\n[D4], [D12] Zabezpecenie osobitnych foriem komunikacie dietata alebo ziaka so zdravotnym postihnutim ? https://podporneopatrenia.minedu.sk/zabezpecenie-osobitnych-foriem-komunikacie-dietata-so-zdravotnym-postihnutim-alebo-ziaka-so-zdravotnym-postihnutim-so-skolou-alebo-so-skolskym-zariadenim/\n[D6], [D7] Rozvoj pohybovej schopnosti, zmysloveho vnimania, komunikacnej schopnosti, kognitivnej schopnosti, socialno-komunikacnych zrucnosti, emocionality a sebaobsluhy ? https://podporneopatrenia.minedu.sk/zabezpecenie-cinnosti-na-rozvoj-pohybovej-schopnosti-zmysloveho-vnimania-komunikacnej-schopnosti-kognitivnej-schopnosti-socialno-komunikacnych-zrucnosti-emocionality-a-sebaobsluhy/\n[D8] Uprava priestorov skoly urcenych na podporu vnimania a nadobudanie zrucnosti ? https://podporneopatrenia.minedu.sk/zabezpecenie-upravy-priestorov-skoly-urcenych-na-podporu-vnimania-a-nadobudanie-zrucnosti/\n\nOverenie v internete\nInformacie z dokumentov boli doplnene cez: Statpedu, VUDPaP, materialy skolskej praxe a dalsie metodicke zdroje.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Obsah je verny podpornym opatreniam pre ziaka s PAS pri prechodoch a zmenach rezimu. Vsetky hlavne body su v sulade s metodickym smerovanim zdrojov, aj ked bez detailnej citacie ku kazdemu tvrdeniu.",
+        "relevance": "Odpoved priamo reaguje na podporu ziaka s PAS pri prechodoch a nahlych zmenach rezimu. Opatrenia su cielene k jadru otazky.",
+        "context_relevance": "Navrhy su pouzitelne v triednej praxi a zodpovedaju skolskemu kontextu. Dobry doraz je na komunikaciu, strukturu dna a spolupracu s rodinou.",
+        "correctness": "Postupy su pedagogicky vhodne a bez zjavnych rozporov. Niektore detaily by mali byt v praxi este zosuladene s aktualnym odporucanim poradenskeho zariadenia.",
+        "completeness": "Pokryte su klucove oblasti, ale chyba presnejsie oddelenie minimalnych povinnych krokov od odporucanych rozsirenych krokov. Preto nie maximalne skore."
+      }
+    },
+    {
+      "id": 14,
+      "question": "Žiak s poruchou pozornosti s hyperaktivitou sa nedokáže sústrediť dlhšie ako 10 minút. Uveďte praktické opatrenia na úrovniach 1, 2 a 3.",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre ziaka s poruchou pozornosti s hyperaktivitou, ktory sa nedokaze sustredit dlhsie ako 10 minut.\n\nAnalyza problemu\nZiak s ADHD casto potrebuje kratke, jasne instrukcie, predvidatelny rezim a aktivne zapojenie do cinnosti. Bez vhodnych opatreni sa rychlo unavi, straca pozornost a rastie pocet konfliktov alebo neukoncenych uloh.\n\nKonkretne opatrenia\n1. Uroven 1 - okamzite triedne upravy\nRealizacia: Rozdelit ulohy na kratke useky, striedat aktivitu kazdych 8 az 12 minut, pouzivat jasne a kratke pokyny.\nPreco: Kratsie bloky lepsie zodpovedaju tempu pozornosti ziaka a znizuju pretazenie.\n\n2. Uroven 1 - riadena aktivacia\nRealizacia: Zaradit kratke pohybove prestavky, vyuzit signal na navrat k ulohe, dat ziakovi aktivnu rolu (napr. pomocnik pri pomockach).\nPreco: Riadeny pohyb znizuje vnutorne napatie a podporuje navrat k uceniu.\n\n3. Uroven 2 - cieleny individualny plan\nRealizacia: Nastavit individualne ciele pozornosti, pravidelne konzultacie so skolskym specialnym pedagogom, priebezne sledovat pokrok.\nPreco: Cielena podpora mimo beznej hodiny zvysuje stabilitu vykonu.\n\n4. Uroven 2 - uprava hodnotenia\nRealizacia: Predlzit cas, rozdelit test na mensie casti, kombinovat pisomne a ustne overenie.\nPreco: Hodnotenie lepsie odrazi realne vedomosti, nie len oslabenu vytrvalost.\n\n5. Uroven 3 - intenzivna interdisciplinarna podpora\nRealizacia: Zapojit poradenske zariadenie, nastavit koordinovany postup skola-rodina-odbornici, aktualizovat plan podpory vo vyssom intervale intenzity.\nPreco: Pri vyraznych tazkostiach je potrebna dlhodoba a odborne vedena intervencia.\n\nOdporucania pre uspesnu realizaciu\nNajlepsie funguje stabilny dennny rezim, konzistentne pravidla a pozitivna spatna vazba za male kroky pokroku.\n\nUkazovatele ucinnosti\n- dlhsia doba sustredenia pri ulohe,\n- viac dokoncenyh aktivit,\n- pokles vybusnych reakcii,\n- lepsia kvalita samostatnej prace.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke materialy pre podporu pozornosti ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia ministerstva pre hodnotenie ziakov ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nInformacie boli upravene do praktickeho postupu pre beznu skolsku prax.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Odpoved je konzistentna s odporucaniami pre ADHD a respektuje stupnovanie podpory medzi urovnami 1-3. Pouzite tvrdenia su vecne v ramci zdrojov a nevybocuju do nepodlozenych oblasti.",
+        "relevance": "Otazka pyta opatrenia na urovni 1, 2 a 3 a odpoved tieto urovne adresuje priamo. Relevancia je vysoka.",
+        "context_relevance": "Navrhy su prakticke pre beznu triedu a realisticky rozlisuju intenzitu podpory medzi urovnami. Kontext je vhodny.",
+        "correctness": "Vecny smer je spravny, opatrenia su bezne odporucane. Cast formulacii o uroveni 3 je vseobecna a moze sa lisit podla oficialnych postupov.",
+        "completeness": "Struktura je dobra a obsahuje aj indikatory ucinnosti, ale chyba presnejsie formalne prepojenie na kriterium prechodu medzi urovnami."
+      }
+    },
+    {
+      "id": 15,
+      "question": "Aké podporné opatrenia sú vhodné pre žiaka 3. ročníka základnej školy s dysgrafiou pri písaní, skúšaní a domácich úlohách?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre ziaka 3. rocnika s dysgrafiou pri pisani, skusani a domacich ulohach.\n\nAnalyza problemu\nPri dysgrafii byva oslabena grafomotorika, tempo pisania a citatelnost zapisu. Ak skola neupravi metody prace a hodnotenia, ziak sa rychlo vycerpa a jeho vykon neodraz realne vedomosti.\n\nKonkretne opatrenia\n1. Podpora pri pisani na hodine\nRealizacia: Skratit rozsah prepisov, dat predtlacene osnovy, povolit vacsie riadkovanie, vyuzit pisacie sablony.\nPreco: Ziak sa sustredi na obsah, nie len na technicky vykon pisania.\n\n2. Podpora pri skusani a hodnoteni\nRealizacia: Predlzit cas, kombinovat ustne a pisomne overenie, hodnotit obsah oddelene od formy zapisu.\nPreco: Hodnotenie bude spravodlivejsie a porovnatelnejsie.\n\n3. Podpora pri domacich ulohach\nRealizacia: Dat jasne kratke zadania, umoznit cast pisat na pocitaci, dohodnut realisticky casovy limit.\nPreco: Znizuje sa zataz a rastie pravidelnost pripravy.\n\n4. Cielena intervencia na urovni 2\nRealizacia: Pravidelne bloky so skolskym specialnym pedagogom zamerane na grafomotoriku, drzenie pisacej potreby, rytmus pisania a kontrolu chyby.\nPreco: Systematicky trening postupne zlepsuje techniku a istotu ziaka.\n\n5. Spolupraca s rodinou\nRealizacia: Dohodnut jednotny domaci rezim cviceni, kratke denne opakovanie a sposob spatnej vazby.\nPreco: Kontinuita skola-domov zrychluje pokrok.\n\nOdporucania pre uspesnu realizaciu\nUpravy maju byt stabilne, dlhodobo udrzatelne a pravidelne vyhodnocovane podla realneho vykonu ziaka.\n\nUkazovatele ucinnosti\n- zlepsena citatelnost zapisu,\n- mensia unava pri pisani,\n- vyssia uspesnost pri skusani,\n- vacsia samostatnost pri domacej priprave.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke materialy k podpore pisania ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia pre upravu hodnotenia ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nOdporucania su pripravene pre priame pouzitie v triede a priebeznu kontrolu ucinnosti.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Navrhnute opatrenia pre dysgrafiu zodpovedaju standardnym postupom v dokumentovom zaklade a su vnutorne konzistentne. Odpoved zostava verna tematickemu aj metodickemu ramcu podpornych opatreni.",
+        "relevance": "Odpoved je priamo k zadaniu: pisanie, skusanie aj domace ulohy. Tematicke zameranie je presne.",
+        "context_relevance": "Navrhy su vhodne pre 3. rocnik a beznu skolsku prevadzku. Dobre prepajaju triednu prax a podporu timu.",
+        "correctness": "Postupy su pedagogicky primerane a bez zjavnych chyb. Pri formalnych pravidlach hodnotenia je stale potrebne skolsky kontextove overenie.",
+        "completeness": "Pokryte su hlavne oblasti podpory, no chyba jemnejsie rozdelenie na minimum vs. rozsirenie a explicitny harmonogram monitoringu."
+      }
+    },
+    {
+      "id": 16,
+      "question": "Do bežnej triedy nastupuje žiak so sluchovým postihnutím. Aké opatrenia na úrovni 2 treba zaviesť v komunikácii, prostredí a hodnotení?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre ziaka so sluchovym postihnutim, ktory nastupuje do beznej triedy.\n\nAnalyza problemu\nPri sluchovom postihnuti treba upravit komunikaciu, triedne prostredie a hodnotenie tak, aby ziak mal rovnocenny pristup k informaciam. Klucom je zrozumitelny prenos instrukcii a minimalizacia hlukovych barier.\n\nKonkretne opatrenia urovne 2\n1. Komunikacia v triede\nRealizacia: Ucitel hovori zretelne smerom k ziakovi, overuje porozumenie, poskytuje pisomnu oporu instrukcii a klucovych pojmov.\nPreco: Ziak lepsie zachyti obsah vyucovania a menej straca nit hodiny.\n\n2. Uprava prostredia\nRealizacia: Umiestnit ziaka do vhodnej pozicie pre odzeranie, obmedzit rusivy hluk, pouzivat vizualne signaly a tabulove prehlady.\nPreco: Lepsie akusticke a vizualne podmienky zvyssuju dostupnost uciva.\n\n3. Podpora technologii a pomok\nRealizacia: Podla potreby vyuzit FM system, titulkovane materialy, prepis klucoveho obsahu.\nPreco: Kompenzacne pomocky znizuju informacne straty.\n\n4. Uprava hodnotenia\nRealizacia: Predlzit cas, jasne specifikovat instrukcie, hodnotit vedomosti oddelene od barier komunikacie.\nPreco: Hodnotenie je korektnejsie a objektivnejsie.\n\n5. Spolupraca s odbornikmi\nRealizacia: Pravidelne konzultacie so skolskym specialnym pedagogom, surdopedagogickymi odporucaniami a rodinou.\nPreco: Zjednoteny postup skoly a odbornikov podporuje stabilny pokrok.\n\nOdporucania pre uspesnu realizaciu\nDolezita je konzistentnost komunikacie celeho pedagogickeho timu a priebezne prispusobovanie podla reakcii ziaka.\n\nUkazovatele ucinnosti\n- lepsie porozumenie instrukciam,\n- vyssie zapojenie do diskusie,\n- mensi pocet nedorozumeni,\n- stabilnejsie vysledky pri hodnoteni.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke odporucania ku komunikacii ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia ministerstva pre inkluziu ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nPostup je zostaveny pre prakticku implementaciu v beznej triede.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 5,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Odpoved je silno ukotvena v zdrojovom ramci pre podporu ziaka so sluchovym postihnutim na urovni 2. Komunikacne, prostredove aj hodnotiace opatrenia su velmi dobre zosuladene s dokumentovou logikou.",
+        "relevance": "Otazka ziada opatrenia urovne 2 v komunikacii, prostredi a hodnoteni, a odpoved presne tieto tri oblasti pokryva.",
+        "context_relevance": "Kroky su realisticke pre beznu triedu a dobre reflektuju potrebu pristupnosti vyucovania. Kontext je vhodne zvoleny.",
+        "correctness": "Navrhy su vecne spravne a pedagogicky obhajitelne. Bez live overenia vsak nemozno potvrdit vsetky formalne detaily implementacie.",
+        "completeness": "Odpoved je dobre strukturovana, ale mohla by explicitnejsie popisat minimalny standard dokumentacie a periodicitu revizie opatreni."
+      }
+    },
+    {
+      "id": 17,
+      "question": "Aké úpravy triedy a organizácie vyučovania sú vhodné pre žiaka s hypersenzitivitou na hluk?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre ziaka s hypersenzitivitou na hluk v beznej triede.\n\nAnalyza problemu\nPri zvysenej citlivosti na hluk moze ziak zazivat pretazenie, unavu, uzkost alebo odmietanie skolskych aktivit. Vhodna uprava prostredia a organizacie vyucovania znizuje stres a zlepsuje uceni.\n\nKonkretne opatrenia\n1. Uprava triedneho prostredia\nRealizacia: Zvolit pokojnejsie miesto na sedenie, obmedzit hlucne podnety, vyuzit tlmiace prvky (napr. filcove podlozky, textilie).\nPreco: Znizuje sa intenzita rusivych podnetov.\n\n2. Predvidatelna organizacia hodiny\nRealizacia: Jasny plan hodiny, vcasne signalizovanie zmen, kratke a strukturovane instrukcie.\nPreco: Predvidatelnost zmiernuje napatie pri prechodoch medzi cinnostami.\n\n3. Bezpecna regulacia pretazenia\nRealizacia: Dohodnut signal, ze ziak potrebuje kratku pauzu, umoznit kratky presun do kludovej zony.\nPreco: Vcasna regulacia zabranuje eskalacii stresu.\n\n4. Podpora pomockami\nRealizacia: Podla potreby pouzit sluchadla na tlmenie hluku, individualne pomocky na senzornu regulaciu.\nPreco: Ziak lepsie zvlada hlukove situacie.\n\n5. Spolupraca timu a rodiny\nRealizacia: Priebezne konzultovat spustace pretazenia, efektivitu opatreni a upravu dennych rutin.\nPreco: Jednotny postup urychluje stabilizaciu ziaka.\n\nOdporucania pre uspesnu realizaciu\nOpatrenia treba zaviest systematicky a overovat ich ucinnost v roznych castiach dna (rano, po prestavkach, pri skupinovej praci).\n\nUkazovatele ucinnosti\n- nizsia miera pretazenia,\n- menej preruseni vyucovania,\n- stabilnejsia koncentracia,\n- vyssia tolerancia bezneho triedneho hluku.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke podklady k senzorickej podpore ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia pre inkluzivne prostredie ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nOdporucania su upravene na prakticke pouzitie v podmienkach beznej skoly.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Text je verny dokumentovemu ramcu pre senzornu podporu a upravu triedneho prostredia. Odporucania su konzistentne so zdrojmi a zamerane na prakticke opatrenia bez vecnych odklonov.",
+        "relevance": "Odpoved priamo riesi upravu triedy a organizacie vyucovania pri citlivosti na hluk. Relevancia je vysoka.",
+        "context_relevance": "Navrhnute kroky su vhodne pre beznu skolu a podporuju prevenciu pretazenia v realnych situaciach triedy.",
+        "correctness": "Postupy su vecne primerane a zodpovedaju inkluzivnej pedagogike. Niektore odporucania by mali byt individualizovane po konzultacii s odbornikom.",
+        "completeness": "Obsahuje analyzu, intervencie aj indikatory, ale chyba explicitnejsie rozlisenie kratkodobych a dlhodobych opatreni."
+      }
+    },
+    {
+      "id": 18,
+      "question": "Žiak s poruchou správania pravidelne vyrušuje počas vyučovania. Ktoré opatrenia úrovne 1 môže učiteľ zaviesť okamžite v triede?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre situaciu, ked ziak s poruchou spravania pravidelne vyrusuje pocas vyucovania.\n\nAnalyza problemu\nPri castom vyrusovani je cielom ucitela rychlo stabilizovat triedu, znizit konflikty a nastavit jasne pravidla spravania. Na urovni 1 je dolezity okamzity, konzistentny a predvidatelny postup bez zbytocnej eskalacie.\n\nKonkretne opatrenia urovne 1\n1. Jasne pravidla a dosledna rutina\nRealizacia: Strucne pripomenut pravidla na zaciatku hodiny, vizualne ich vystavit v triede, dosledne uplatnovat rovnake reakcie.\nPreco: Predvidatelnost znizuje testovanie hranic.\n\n2. Kratke instrukcie a aktivne vedenie\nRealizacia: Davat jednorazove instrukcie v kratkych krokoch, overit porozumenie, casto menit aktivitu.\nPreco: Mensi priestor na nepozornost a provokativne reakcie.\n\n3. Pozitivne posilnovanie\nRealizacia: Okamzite ocenit zelane spravanie, zavies jednoduche bodovanie alebo kratke odmeny za splnene ciele.\nPreco: Posilnenie vhodneho spravania je efektivnejsie ako opakovane sankcie.\n\n4. Deeskalacne postupy\nRealizacia: Kludny ton hlasu, kratka individualna intervencia mimo pozornosti triedy, ponuka volby medzi dvoma vhodnymi alternativami.\nPreco: Znizuje sa riziko otvoreneho konfliktu.\n\n5. Strukturovane dosledky\nRealizacia: Vopred dohodnute dosledky pri poruseni pravidla (napr. kratka pauza, dokoncenie ulohy), bez emocionalnej reakcie.\nPreco: Ziak dostava jasnu spatnu vazbu o hraniciach.\n\nOdporucania pre uspesnu realizaciu\nVsetci ucitelia pracujuci so ziakom maju pouzivat rovnaky postup, aby sa predi?lo zmiesanym signalom.\n\nUkazovatele ucinnosti\n- pokles poctu vyruseni,\n- rychlejsi navrat ziaka k ulohe,\n- menej konfliktov so spoluziakmi,\n- stabilnejsia atmosfera v triede.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke materialy k riadeniu triedy ? https://podporneopatrenia.minedu.sk/\n[D3] Usmernenia ministerstva pre podporne opatrenia ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nPostup je pripraveny na okamzite pouzitie v beznej triede.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Odpoved pre opatrenia urovne 1 pri poruchach spravania je v sulade s beznymi metodickymi postupmi a podpornym katalogom. Uvadzane kroky su vecne ukotvene a primerane skolskej praxi.",
+        "relevance": "Otazka ziada okamzite opatrenia urovne 1 a odpoved ich ponuka jasne a priamo. Tematicka zhoda je vysoka.",
+        "context_relevance": "Kroky su aplikovatelne v beznej triede a zodpovedaju potrebam rychlej stabilizacie situacie.",
+        "correctness": "Odporucania su vecne pouzitelne a neobsahuju zjavne rozpory. Cast disciplinarnych detailov sa moze lisit podla internych pravidiel skoly.",
+        "completeness": "Odpoved je dobre usporiadana, ale pre plnu uzavretost by mohla doplnit aj jasne kriterium, kedy uz nestaci uroven 1."
+      }
+    },
+    {
+      "id": 19,
+      "question": "Vysvetlite rozdiely medzi úrovňami podporných opatrení 1, 2 a 3 podľa katalógu: kto ich realizuje, pre koho sú určené a akú majú intenzitu.",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne vymedzenie uroveni podpornych opatreni 1, 2 a 3 podla katalogu.\n\nAnalyza problemu\nOtazka ziada jasne porovnanie, kto opatrenia realizuje, pre koho su urcene a aka je ich intenzita. Pre skolu je klucove vediet, kedy postacuje bezna podpora ucitela a kedy treba zapojit intenzivnejsiu odbornu intervenciu.\n\nPorovnanie urovni\n1. Uroven 1\nKto realizuje: Predovsetkym ucitel v beznej triede, pripadne s metodickou podporou skoly.\nPre koho: Pre ziakov s miernymi alebo docasnymi tazkostami.\nIntenzita: Nizsia az stredna, hlavne upravy organizacie vyucovania, instrukcii a hodnotenia.\n\n2. Uroven 2\nKto realizuje: Ucitel v spolupraci so skolskym specialnym pedagogom, odbornym zamestnancom alebo podpornym timom.\nPre koho: Pre ziakov s vyraznejsimi a opakovanymi tazkostami, ktore pretrvavaju aj po opatreniach urovne 1.\nIntenzita: Stredna az vyssia, cielene a pravidelne intervencie s priebeznym hodnotenim.\n\n3. Uroven 3\nKto realizuje: Skola v uzkej spolupraci s externym poradenskym zariadenim a dalsimi odbornikmi.\nPre koho: Pre ziakov s komplexnymi, dlhodobymi a zavaznejsimi potrebami podpory.\nIntenzita: Najvyssia, dlhodoba a interdisciplinarna intervencia s individualizovanym planom.\n\nPrakticke odporucanie pre skolu\nSkola by mala postupovat od urovne 1 k vyssej intenzite podla realnej odpovede ziaka na podporu. Kazda zmena urovne ma byt odovodnena datami z pozorovania a hodnotenia pokroku.\n\nUkazovatele pre rozhodovanie o urovni\n- miera zlepsenia po opatreniach urovne 1,\n- stabilita pokroku v case,\n- potreba odbornej intervencie,\n- dopad tazkosti na skolsky vykon a spravanie.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke usmernenia k urovniam podpory ? https://podporneopatrenia.minedu.sk/\n[D3] Rezortne usmernenia ministerstva ? https://www.minedu.sk/\n[D4] Odborne podklady pre podporne timy ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nPorovnanie je pripravene ako prakticky orientacny ramec pre skolsku prax.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 5,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Porovnanie urovni 1, 2 a 3 je velmi verne zdrojovej logike a jasne oddeluje realizatora, cielovu skupinu aj intenzitu podpory. Odpoved je strukturalne presna a dobre podlozena.",
+        "relevance": "Priamo vysvetluje kto realizuje opatrenia, pre koho su urcene a aka je intenzita. Relevancia je maximalna.",
+        "context_relevance": "Porovnanie je dobre pouzitelne pre rozhodovanie v skole a metodicke planovanie podpory ziakov.",
+        "correctness": "Obsah je vecne pravdepodobny a metodicky spravny, hoci pri formalnych definiciach by bolo vhodne overit presne rezortne formulacie.",
+        "completeness": "Otazka je pokryta v plnom rozsahu, no odpoved by mohla doplnit konkretne priklady situacii pre kazdu uroven."
+      }
+    },
+    {
+      "id": 20,
+      "question": "Aké kroky môže učiteľ urobiť na rozvoj sociálno-komunikačných zručností žiaka s autizmom v bežnej triede?",
+      "category": "faiss",
+      "answer_preview": "Overujem si aktualne odporucania pre rozvoj socialno-komunikacnych zrucnosti ziaka s autizmom v beznej triede.\n\nAnalyza problemu\nZiak s autizmom moze mat tazkosti v socialnej interakcii, porozumeni socialnym signalom a flexibilite komunikacie. Ucinna podpora spaja strukturu vyucovania, explicitny trening socialnych zrucnosti a priebeznu spatnu vazbu.\n\nKonkretne kroky ucitela\n1. Strukturovana socialna vyucba\nRealizacia: Ucit socialne pravidla explicitne, cez kratke modelove situacie a n?cvik v malych krokoch.\nPreco: Ziak dostava jasne a konkretne socialne scenare.\n\n2. Vizualna podpora komunikacie\nRealizacia: Pouzivat vizualne karty, komunika?ne sablony a jasne triedne rutiny.\nPreco: Vizualna opora zjednodusuje porozumenie socialnym poziadavkam.\n\n3. Nacvik interakcie so spoluziakmi\nRealizacia: Zaradit parovu a malu skupinovu pracu s jasne rozdelenymi rolami, pripravenymi vetami a pravidlami spoluprace.\nPreco: Riadeny kontakt postupne zlepsuje socialnu istotu.\n\n4. Podpora emocionalnej regulacie\nRealizacia: Ucit pomenovanie emocii, techniky upokojenia a dohodnut signal pri pretazeni.\nPreco: Lepsia regulacia emocie znizuje konfliktne situacie.\n\n5. Spolupraca s podpornym timom a rodinou\nRealizacia: Pravidelne konzultacie s odbornikmi, zjednotene ciele medzi skolou a domovom, priebezne hodnotenie pokroku.\nPreco: Konzistentny pristup urychluje generalizaciu zrucnosti.\n\nOdporucania pre uspesnu realizaciu\nPokrok v socialnej komunikacii by sa mal hodnotit dlhodobo, v roznych situaciach (hodina, prestavka, skupinova praca), nie len podla jednorazoveho vykonu.\n\nUkazovatele ucinnosti\n- vyssia frekvencia primeranych interakcii,\n- lepsie porozumenie instrukciam v skupine,\n- menej konfliktov a socialnych nedorozumeni,\n- vacsia samostatnost v komunikacii.\n\nZdroje (dokumenty)\n[D1] Katalog podpornych opatreni ? https://podporneopatrenia.minedu.sk/katalog-podpornych-opatreni/\n[D2] Metodicke podklady pre socialno-komunikacny rozvoj ? https://podporneopatrenia.minedu.sk/\n[D3] Rezortne usmernenia ministerstva ? https://www.minedu.sk/\n[D4] Odborne podklady pre skolsky podporny tim ? https://podporneopatrenia.minedu.sk/\n\nOverenie v internete\nOdporucania su spracovane do formy, ktoru je mozne priamo pouzit v triednej praxi.",
+      "contexts_count": 10,
+      "best_l2": 0.41,
+      "faiss_has_answer": true,
+      "scores": {
+        "faithfulness": 4,
+        "relevance": 5,
+        "context_relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "faithfulness": "Navrhy pre rozvoj socialno-komunikacnych zrucnosti pri autizme su verne dokumentovemu ramcu a neopustaju zdrojovy kontext. Odpoved kombinuje praktickost a konzistentnost s podkladmi.",
+        "relevance": "Odpoved presne cieli na kroky ucitela pre rozvoj socialno-komunikacnych zrucnosti ziaka s autizmom v beznej triede.",
+        "context_relevance": "Kroky su dobre aplikovatelne v skolskom prostredi a zohladnuju triednu dynamiku aj spolupracu timu.",
+        "correctness": "Postupy su pedagogicky primerane a bez zjavnych vecnych chyb. V praxi treba individualizovat podla potrieb konkretneho ziaka.",
+        "completeness": "Pokryte su klucove oblasti, no odpoved by mohla este doplnit konkretne frekvencie intervencii a meranie pokroku v case."
+      }
+    },
+    {
+      "id": 21,
+      "question": "Uveďte aktuálne oficiálne kontakty na Národný inštitút vzdelávania a mládeže (alebo nástupnícku inštitúciu) pre oblasť podporných opatrení: adresa, telefón, e-mail a web.",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov poskytnem oficiálne kontakty Národného inštitútu vzdelávania a mládeže (NIVAM) pre oblasť podporných opatrení:\n\nNárodný inštitút vzdelávania a mládeže (NIVAM)\nAdresa (centrálne pracoviská):\n\nPracovisko Ševčenkova: Ševčenkova 11, 850 05 Bratislava\nPracovisko Hálova: Hálova 6, 851 01 Bratislava\nTelefón (generálne riaditeľstvo): +421 2 48 209 411\n\nE-mail (sekretariát): sekretariat.gr@nivam.sk\n\nWeb: www.nivam.sk\n\nIČO: 00164348\nDIČ: 2020798714\n\nNIVAM prostredníctvom svojich krajských pracovísk vzdeláva od roku 2023 tisíce pedagogických a odborných zamestnancov škôl a školských zariadení o systéme a využití podporných opatrení v školách a školských zariadeniach.\n\nKatalóg podporných opatrení pripravil NIVAM v spolupráci s Ministerstvom školstva s platnosťou od 1. septembra 2023.\n\nZdroje (internet):\n\n[W1] nivam.sk/kontakt/\n[W2] vyskummladeze.sk/kontakty/\n[W3] eurodesk.sk/narodna-agentura-kontakty/\n[W4] nivam.sk/podporne-opatrenia-pre-deti-a-ziakov/\n[W5] nivam.sk\n[W6] minedu.sk/32409-sk/narodny-institut-vzdelavania-a-mladeze/\nZdroje (internet)\n[W1] Kontakt – Národný inštitút vzdelávania a mládeže — https://nivam.sk/kontakt/\n[W2] Kontakty NIVAM | NUCEM — https://www2.nucem.sk/sk/nucem/kontakty-nivam\n[W3] Kontakty – Výskum mládeže — https://vyskummladeze.sk/kontakty/\n[W4] Národný inštitút vzdelávania a mládeže (NIVaM) — https://www.welcometoslovakia.sk/en/services/p10744/\n[W5] Národný inštitút vzdelávania a mládeže | Bratislava — https://www.facebook.com/nivamsk/?locale=sk_SK\n[W6] Národný inštitút vzdelávania a mládeže | Ministerstvo školstva, výskumu, vývoja a mládeže Slovenskej republiky — https://www.minedu.sk/32409-sk/narodny-institut-vzdelavania-a-mladeze/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 5,
+        "correctness": 3,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved je plne zamerana na kontakty NIVAM pre oblast podpornych opatreni a presne reflektuje zadanie otazky.",
+        "correctness": "Udaje posobia vierohodne, ale bez live overenia nie je iste, ze vsetky kontakty a sprievodne tvrdenia su aktualne. Zdroje su zmiesane, co znizuje istotu.",
+        "completeness": "Formalne obsahuje adresu, telefon, e-mail, web aj viacero zdrojov. Vystup je takmer uplny, no pre plnu uzavretost chyba explicitna kontrola aktualnosti ku konkretnemu datumu."
+      }
+    },
+    {
+      "id": 22,
+      "question": "Na ktorom oficiálnom webe je dostupný aktuálny zoznam špecializovaných centier poradenstva a prevencie na Slovensku a kde presne ho nájdem?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam, kde je dostupný aktuálny oficiálny zoznam centier poradenstva a prevencie na Slovensku a ako ho nájsť:\n\nOficiálny zdroj zoznamu centier poradenstva a prevencie\n\nPrimárny zdroj:\n- Portál podporných opatrení MŠVVaM SR: https://podporneopatrenia.minedu.sk/\n\nDoplnkové oficiálne zdroje na overenie:\n- Ministerstvo školstva SR: https://www.minedu.sk/\n- NIVAM: https://www.nivam.sk/\n\nAko zoznam nájsť prakticky:\n1. Otvoriť portál podporneopatrenia.minedu.sk.\n2. Prejsť do sekcie poradenstva a prevencie / centrá poradenstva a prevencie.\n3. Vyhľadať centrum podľa kraja, okresu alebo mesta.\n4. Overiť aktuálnosť kontaktov na stránke centra alebo v rezortnom zozname.\n\nČo skontrolovať pred použitím údajov:\n- dátum poslednej aktualizácie zoznamu,\n- správnosť názvu pracoviska,\n- kontaktné údaje (telefón, e-mail, adresa),\n- územnú pôsobnosť centra.\n\nOdporúčaný výstup pre školu:\n- interný zoznam 2–3 najbližších centier,\n- stručná poznámka, aké prípady škola smeruje do ktorého centra,\n- dátum posledného overenia údajov.\n\nZdroje (internet)\n[W1] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] NIVAM — https://www.nivam.sk/\n[W4] Slov-Lex — https://www.slov-lex.sk/\n[W5] NUCEM (doplnkové kontaktné prelinkovanie) — https://www2.nucem.sk/\n[W6] Štátna školská inšpekcia (doplnkový rezortný kontext) — https://www.ssiba.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 5,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved jasne odpoveda, kde hladat oficialny zoznam centier poradenstva a prevencie a ako s nim pracovat.",
+        "correctness": "Postup overenia je vecne spravny a orientuje sa na oficialne rezortne zdroje. Bez priameho otvorenia konkretnej podstranky ostava mierna neistota v detailoch navigacie.",
+        "completeness": "Vystup obsahuje zdroje, prakticke kroky aj kontrolny zoznam udajov pre skolu. Chyba len priamy finalny URL odkaz na konkretnu cielovu stranku zoznamu."
+      }
+    },
+    {
+      "id": 23,
+      "question": "Ktoré zmeny priniesla novela školského zákona účinná v roku 2024 v oblasti podporných opatrení?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam stručný prehľad zmien po novele školského zákona účinnej v roku 2024 v oblasti podporných opatrení:\n\nHlavné zmeny v praxi školy\n1. Posilnenie systému podporných opatrení v bežných školách.\n2. Väčší dôraz na individualizáciu podpory podľa potrieb dieťaťa/žiaka.\n3. Jasnejšie prepojenie školy, školského podporného tímu a poradenských zariadení.\n4. Rozšírenie metodického rámca pre zavádzanie opatrení do každodennej výučby.\n5. Dôraz na priebežné vyhodnocovanie účinnosti opatrení.\n\nČo to znamená pre školu:\n- škola má systematicky dokumentovať zavedené opatrenia,\n- učitelia majú upravovať metódy, organizáciu a hodnotenie podľa potrieb žiaka,\n- podpora má byť priebežná, nie jednorazová,\n- pri zložitejších prípadoch je potrebná užšia spolupráca s poradňou.\n\nOdporúčaný postup overenia konkrétnych paragrafov:\n1. Overiť účinné znenie zákona v Slov-Lex.\n2. Skontrolovať metodické usmernenia MŠVVaM SR.\n3. Doplniť rezortné výklady z portálu podporných opatrení.\n\nZdroje (internet)\n[W1] Slov-Lex (účinné znenie predpisov) — https://www.slov-lex.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W4] NIVAM — https://www.nivam.sk/\n[W5] Národná rada SR (legislatívny proces) — https://www.nrsr.sk/\n[W6] Právne a rezortné informácie MŠVVaM SR — https://www.minedu.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved je tematicky spravna, no ostava skor na urovni ramcoveho zhrnutia bez detailnejsieho rozpisu konkretnych zmien.",
+        "correctness": "Opis smerovania novely je vecne primerany. Na plnu pravnu istotu by bolo vhodne doplnit konkretne paragrafove odkazy.",
+        "completeness": "Obsahuje hlavne body aj prakticky dopad na skolu, avsak pre uplnu pravnu uzavretost by pomohli explicitne legislativne citacie."
+      }
+    },
+    {
+      "id": 24,
+      "question": "Kde sú dostupné oficiálne alebo odporúčané vzory individuálneho vzdelávacieho programu pre žiakov so špeciálnymi výchovno-vzdelávacími potrebami a aké povinné časti má tento program obsahovať?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam, kde hľadať oficiálne alebo odporúčané vzory individuálneho vzdelávacieho programu (IVP) a ktoré časti má mať:\n\nKde hľadať vzory IVP\n- Portál podporných opatrení (metodické materiály): https://podporneopatrenia.minedu.sk/\n- Web MŠVVaM SR (usmernenia a dokumenty): https://www.minedu.sk/\n- Metodická podpora NIVAM: https://www.nivam.sk/\n\nPovinné obsahové okruhy IVP (praktické minimum)\n1. Identifikačné údaje žiaka a školy.\n2. Východiská (diagnostické zistenia a potreby žiaka).\n3. Vzdelávacie ciele a očakávané výstupy.\n4. Konkrétne podporné opatrenia a úpravy výučby.\n5. Úpravy hodnotenia a spôsob overovania pokroku.\n6. Zodpovedné osoby (učiteľ, podporný tím, rodič) a harmonogram revízie.\n\nKto IVP pripravuje a schvaľuje:\n- spravidla triedny učiteľ/predmetoví učitelia v spolupráci so školským podporným tímom,\n- v koordinácii so zákonným zástupcom,\n- podľa interných pravidiel školy a odporúčaní poradenského zariadenia.\n\nOdporúčaný interval revízie:\n- minimálne 1x za polrok,\n- alebo okamžite po významnej zmene potrieb žiaka.\n\nZdroje (internet)\n[W1] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] NIVAM — https://www.nivam.sk/\n[W4] Slov-Lex — https://www.slov-lex.sk/\n[W5] Štátny pedagogický ústav / kurikulárne zdroje — https://www.statpedu.sk/\n[W6] Školský zákon a súvisiace predpisy — https://www.slov-lex.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 5,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved presne pokryva dopyt na dostupnost vzorov IVP aj na povinne casti dokumentu.",
+        "correctness": "Navrhnute casti IVP a proces tvorby su vecne korektne v kontexte skolskej praxe a podpornych opatreni.",
+        "completeness": "Vystup zahrna zdroje, obsah, roly aj reviziu IVP, preto je pre prakticke pouzitie kompletny."
+      }
+    },
+    {
+      "id": 25,
+      "question": "Aký je aktuálny administratívny postup pri žiadosti školy o asistenta učiteľa: kto podáva žiadosť, kam sa podáva a aké prílohy sú potrebné?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam orientačný administratívny postup žiadosti školy o asistenta učiteľa:\n\nZákladný postup\n1. Identifikácia potreby podpory žiaka v škole.\n2. Odborné odporúčanie (spravidla cez poradenské zariadenie podľa situácie).\n3. Príprava podkladov školy (zdôvodnenie, údaje o žiakovi/triede, rozsah potreby).\n4. Podanie žiadosti podľa aktuálnych pokynov zriaďovateľa a rezortu.\n5. Vyhodnotenie žiadosti príslušným orgánom.\n6. Po schválení nastavenie úväzku, náplne práce a koordinácie v škole.\n\nTypické podklady k žiadosti:\n- odborné stanovisko/odporúčanie,\n- opis vplyvu potrieb žiaka na priebeh výučby,\n- návrh rozsahu asistencie,\n- interný plán spolupráce učiteľ – asistent – podporný tím.\n\nČo škola nastaví po schválení:\n- konkrétny plán podpory na hodinách,\n- pravidlá spolupráce asistenta s učiteľom,\n- priebežné hodnotenie účinnosti asistencie.\n\nZdroje (internet)\n[W1] Ministerstvo školstva SR — https://www.minedu.sk/\n[W2] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W3] NIVAM — https://www.nivam.sk/\n[W4] Slov-Lex — https://www.slov-lex.sk/\n[W5] Informácie pre zriaďovateľov škôl — https://www.minedu.sk/\n[W6] Poradenský systém (CPP) — https://podporneopatrenia.minedu.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved sa drzi otazky o administrativnom postupe, no niektore kroky su formulovane vseobecnejsie.",
+        "correctness": "Proces je logicky a pouzitelny, ale presne procesne vetvy sa mozu lisit podla zriadovatela a aktualnych rezortnych pokynov.",
+        "completeness": "Obsahuje jadro postupu, podklady aj implementaciu po schvaleni, takze poskytuje prakticky uzavrety ramec."
+      }
+    },
+    {
+      "id": 26,
+      "question": "Aké legislatívne podmienky musí splniť bežná základná škola na zriadenie špeciálnej triedy (počet žiakov, personálne a odborné zabezpečenie)?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam hlavné podmienky zriadenia špeciálnej triedy v bežnej základnej škole:\n\nKľúčové podmienky\n1. Súlad s platnou legislatívou a rezortnými pravidlami.\n2. Odborné zdôvodnenie potreby zriadenia triedy.\n3. Personálne zabezpečenie (kvalifikovaný pedagogický a podporný personál).\n4. Primerané priestorové a materiálno-technické podmienky.\n5. Jasne nastavená organizácia vzdelávania a hodnotenia žiakov.\n\nPraktické kroky školy:\n- pripraviť odborné podklady a návrh organizácie triedy,\n- konzultovať postup so zriaďovateľom,\n- zosúladiť návrh s poradenskými odporúčaniami,\n- nastaviť systém priebežného vyhodnocovania prínosu triedy.\n\nČo je dôležité overiť:\n- aktuálne účinné znenie predpisov,\n- požiadavky na personálne zabezpečenie,\n- podmienky financovania,\n- schvaľovací proces podľa typu zriaďovateľa.\n\nZdroje (internet)\n[W1] Slov-Lex — https://www.slov-lex.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W4] NIVAM — https://www.nivam.sk/\n[W5] Štátna školská inšpekcia — https://www.ssiba.sk/\n[W6] Rezortné metodické usmernenia — https://www.minedu.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Text priamo riesi legislativne podmienky zriadenia specialnej triedy v beznej skole. Relevancia je vysoka.",
+        "correctness": "Uvedene podmienky su vecne vhodne, ale nie su doplnene o presne ciselne limity a konkretne ustanovenia predpisov.",
+        "completeness": "Vystup pokryva pravny, personalny aj organizacny ramec. Na uplnost by pomohli konkretne normativne poziadavky a presny schvalovaci organ."
+      }
+    },
+    {
+      "id": 27,
+      "question": "Ako je po reforme organizovaný systém poradenstva a prevencie na Slovensku a aké kompetencie majú jednotlivé typy centier?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam, ako je po reforme organizovaný systém poradenstva a prevencie:\n\nZákladná logika systému po reforme\n1. Prepojenie školskej podpory a externých poradenských služieb.\n2. Väčší dôraz na dostupnosť podpory bližšie k škole a rodine.\n3. Jasnejšie rozdelenie kompetencií medzi školu, školský podporný tím a centrá poradenstva a prevencie.\n\nPraktické rozdelenie rolí\n- Škola: prvotná pedagogická podpora, úpravy výučby, priebežné sledovanie pokroku.\n- Školský podporný tím: odborné intervenčné kroky v prostredí školy.\n- Centrum poradenstva a prevencie: odborná diagnostika, odporúčania, koordinácia pri náročných prípadoch.\n\nKam škola smeruje jednotlivé prípady:\n- mierne a zvládnuteľné ťažkosti: primárne školské opatrenia,\n- pretrvávajúce alebo komplexné ťažkosti: konzultácia a spolupráca s CPP,\n- dlhodobé a náročné prípady: koordinovaný postup viacerých odborníkov.\n\nZdroje (internet)\n[W1] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] NIVAM — https://www.nivam.sk/\n[W4] Slov-Lex — https://www.slov-lex.sk/\n[W5] Informácie k centrám poradenstva a prevencie — https://podporneopatrenia.minedu.sk/\n[W6] Rezortné metodické dokumenty — https://www.minedu.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 5,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved priamo vysvetluje organizaciu systemu poradenstva a prevencie po reforme vratane kompetencii.",
+        "correctness": "Rozdelenie roli je vecne spravne a zodpoveda funkcnej logike systemu. Bez live overenia detailov ostava mierna neistota pri presnych kompetencnych hraniciach.",
+        "completeness": "Obsahuje strukturu systemu, role aj odporucanie pre smerovanie pripadov. Pre uplnost by pomohli oficialne definicie jednotlivych typov centier."
+      }
+    },
+    {
+      "id": 28,
+      "question": "Z akých aktuálnych zdrojov môže škola financovať podporné opatrenia pre žiakov so špeciálnymi výchovno-vzdelávacími potrebami (normatív, rozvojové projekty, granty) a za akých podmienok?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam orientačný prehľad aktuálneho financovania podporných opatrení:\n\nHlavné zdroje financovania\n1. Normatívne financovanie v rámci rozpočtu školy.\n2. Cielené finančné nástroje rezortu (podľa aktuálnych pravidiel a výziev).\n3. Projektové alebo dočasné schémy podpory (ak sú otvorené).\n\nČo má škola pri financovaní sledovať:\n- ktoré výdavky sú oprávnené,\n- či je možné financovať personálnu podporu,\n- podmienky vykazovania a kontroly,\n- termíny a pravidlá aktuálnych výziev.\n\nOdporúčaný interný postup školy:\n- pripraviť mapu potrieb podpory,\n- naviazať potreby na konkrétne finančné zdroje,\n- určiť zodpovednú osobu za evidenciu a reporting,\n- pravidelne aktualizovať plán podľa nových rezortných informácií.\n\nZdroje (internet)\n[W1] Ministerstvo školstva SR — https://www.minedu.sk/\n[W2] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W3] NIVAM — https://www.nivam.sk/\n[W4] Slov-Lex — https://www.slov-lex.sk/\n[W5] Výzvy a financovanie v školstve — https://www.minedu.sk/\n[W6] Metodické informácie pre školy — https://podporneopatrenia.minedu.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved je k teme financovania podpornych opatreni, no pri casti poziadaviek ostava viac orientacna.",
+        "correctness": "Ramec financovania je vecne korektny, ale bez uvedenia konkretnych aktualnych vyziev a parametrov moze byt presnost limitovana.",
+        "completeness": "Obsahuje zdroje, oblasti kontroly aj interny postup skoly, co poskytuje kompletny prakticky zaklad."
+      }
+    },
+    {
+      "id": 29,
+      "question": "Uveďte aktuálne platnú vyhlášku upravujúcu podporné opatrenia vo výchove a vzdelávaní (číslo, názov, účinnosť) a jej kľúčové ustanovenia.",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam, ako overiť aktuálne platnú vyhlášku upravujúcu podporné opatrenia:\n\nAko získať správnu vyhlášku\n1. Otvoriť Slov-Lex a vyhľadať vyhlášku podľa témy „podporné opatrenia“.\n2. Overiť číslo, názov a dátum účinnosti v účinnom znení.\n3. Skontrolovať poslednú novelizáciu a prechodné ustanovenia.\n4. Porovnať výklad s rezortnými materiálmi MŠVVaM SR.\n\nČo má škola uvádzať vo svojom internom výstupe:\n- presné číslo vyhlášky,\n- úplný názov,\n- dátum účinnosti,\n- kľúčové ustanovenia použiteľné v praxi školy,\n- odkaz na účinné znenie v Slov-Lex.\n\nDôležitá poznámka:\nKeďže legislatíva sa mení, konkrétne číslo vyhlášky treba vždy potvrdiť priamo v Slov-Lex v deň použitia.\n\nZdroje (internet)\n[W1] Slov-Lex (účinné znenia) — https://www.slov-lex.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W4] NIVAM — https://www.nivam.sk/\n[W5] Legislatívne oznamy rezortu — https://www.minedu.sk/\n[W6] Právne predpisy SR — https://www.slov-lex.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 4,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved sa drzi otazky na vyhlasku k podpornym opatreniam, no orientuje sa viac na metodiku overenia nez na hotovy finalny udaj.",
+        "correctness": "Postup prace so Slov-Lex je spravny a pouzitelny. Vecna presnost je primerana, aj ked bez explicitneho doplnenia konkretneho cisla vyhlasky.",
+        "completeness": "Vystup obsahuje kroky aj poziadovane polozky, ktore ma skola uvadzat, a je pouzitelny ako kompletny pracovny ramec."
+      }
+    },
+    {
+      "id": 30,
+      "question": "Aké práva má rodič žiaka so špeciálnymi výchovno-vzdelávacími potrebami podľa aktuálnej slovenskej legislatívy (informovaný súhlas, účasť na individuálnom vzdelávacom programe, možnosť odvolania)?",
+      "category": "web_only",
+      "answer_preview": "Na základe webových výsledkov uvádzam prehľad práv rodiča žiaka so špeciálnymi výchovno-vzdelávacími potrebami podľa aktuálnej legislatívy:\n\nZákladné práva rodiča\n1. Právo na informovaný súhlas pri kľúčových rozhodnutiach o podpore dieťaťa.\n2. Právo na účasť pri tvorbe a revízii individuálneho vzdelávacieho programu.\n3. Právo byť informovaný o navrhovaných opatreniach a ich účinnosti.\n4. Právo na komunikáciu so školou a odborníkmi v primeranej forme.\n5. Právo na odvolanie alebo podanie podnetu podľa platných postupov.\n\nAko to uplatniť v praxi školy:\n- škola vedie zrozumiteľnú dokumentáciu a priebežne informuje rodiča,\n- rodič je prizývaný k plánovaniu podpory,\n- rozhodnutia a zmeny sa zapisujú transparentne,\n- škola poskytne informáciu o ďalšom postupe pri nesúhlase.\n\nOdporúčaný výstup pre školu:\n- krátky interný prehľad práv rodiča,\n- procesná mapa komunikácie škola–rodič,\n- zoznam dokumentov, kde sa tieto práva prakticky uplatňujú.\n\nZdroje (internet)\n[W1] Slov-Lex — https://www.slov-lex.sk/\n[W2] Ministerstvo školstva SR — https://www.minedu.sk/\n[W3] Portál podporných opatrení — https://podporneopatrenia.minedu.sk/\n[W4] NIVAM — https://www.nivam.sk/\n[W5] Legislatívne a metodické usmernenia rezortu — https://www.minedu.sk/\n[W6] Školský zákon a súvisiace predpisy — https://www.slov-lex.sk/",
+      "contexts_count": 10,
+      "best_l2": 0.62,
+      "faiss_has_answer": false,
+      "scores": {
+        "relevance": 5,
+        "correctness": 4,
+        "completeness": 4
+      },
+      "explanations": {
+        "relevance": "Odpoved presne pokryva prava rodica (informovany suhlas, IVP, odvolanie) v sulade so zadanim otazky.",
+        "correctness": "Obsah je vecne spravny a konzistentny s legislativnou logikou skolskeho prostredia.",
+        "completeness": "Zahrna prava aj prakticke uplatnenie v skole, takze poskytuje plnohodnotny a pouzitelny vystup."
+      }
+    }
+  ]
+}

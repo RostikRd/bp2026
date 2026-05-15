@@ -81,9 +81,9 @@ docker/*.log
 *.tmp
 *.temp
 
-project_structure.md
 prezentacia/
 texty/
 
 evaluation/results/eval_20260220_182828.json
 evaluation/results/eval_20260220_183539.json
+evaluation/results/evaluation_report.md

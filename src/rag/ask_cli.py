@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -330,13 +331,34 @@ OFF_TOPIC_MESSAGE = (
 
 # Returns True if the query asks for contacts, addresses, phone numbers, or similar lookup info (answer should come from web only).
 def is_contact_or_lookup_query(query: str) -> bool:
-    q = query.lower().strip()
-    terms = (
-        "kontakt", "kontakty", "telefón", "telefónne", "e-mail", "email", "adresa", "sídlo",
-        "kde nájdem", "aký je kontakt", "ako kontaktovať", "číslo na ", "kontakt na ",
-        "štátny pedagogický ústav", "špú", "núvam", "nivam", "núcem", "nucem",
+    def _norm(text: str) -> str:
+        t = (text or "").lower().strip()
+        t = unicodedata.normalize("NFKD", t)
+        t = "".join(ch for ch in t if not unicodedata.combining(ch))
+        t = re.sub(r"\s+", " ", t)
+        return t
+
+    q = _norm(query)
+    if not q:
+        return False
+
+    contact_terms = (
+        "kontakt", "kontakty", "kontaktovat", "telefon", "telefonne", "tel.", "e-mail", "email",
+        "adresa", "sidlo", "web", "www", "stranka", "kontakt na", "cislo na", "aky je kontakt",
+        "kde najdem", "ako kontaktovat", "oficialny kontakt", "oficialne kontakty",
     )
-    return any(t in q for t in terms)
+    institution_terms = (
+        "narodny institut vzdelavania a mladeze", "nivam", "nuvam", "nucem", "spu",
+        "nastupnicka institucia", "ministerstvo skolstva",
+    )
+    field_terms = ("adresa", "telefon", "email", "e-mail", "web", "kontakt")
+
+    has_contact_intent = any(t in q for t in contact_terms)
+    has_institution = any(t in q for t in institution_terms)
+    has_multiple_fields = sum(1 for t in field_terms if t in q) >= 2
+
+    # Route to web-only for explicit contact lookups, especially for institutions.
+    return has_contact_intent or (has_institution and has_multiple_fields)
 
 
 # Returns True if the query appears to be about special education, supportive measures, or related institutions.
@@ -645,6 +667,16 @@ PRAVIDLÁ:
 - KRITICKÉ: NIKDY nepíš, že nemáš informácie, že nemôžeš odpovedať, že v dokumentoch to nie je alebo že zdroje sú nedostatočné. Vždy poskytni konkrétnu odpoveď na základe dostupných dokumentov [D#] alebo webových zdrojov [W#]. Ak máš k dispozícii webové výsledky – odpovedaj z nich; ak dokumenty – z nich. Odmietnutie odpovede je ZAKAZANÉ.
 - Ak je v kontexte „Dokument používateľa (priložený súbor)“, zohľadni ho spolu s katalógom [D#] a webom; môžeš sa na neho odvolať ako na „priložený dokument“ alebo „v dokumente používateľa“."""
 
+    internet_only_system_prompt = """Si expertný asistent pre webové overovanie faktov.
+
+Režim: ODPOVEĎ LEN Z WEBU.
+- Odpovedaj VÝLUČNE z aktuálnych webových výsledkov.
+- NEPOUŽÍVAJ a NECITUJ dokumentové odkazy [D1], [D2], ...
+- Pri kľúčových faktoch (napr. adresa, telefón, e-mail, web, dátumy) cituj [W1], [W2], ...
+- Ak otázka žiada kontakty, uveď priamo konkrétne kontaktné údaje, nie všeobecný postup.
+- Odpoveď píš po slovensky a stručne, vecne, bez odmietnutia.
+"""
+
     # Builds the user prompt for Claude from context, sources and query.
     def _build_user_prompt(context: str, sources_info: list, query: str, internet_only: bool = False, user_document_block: str = "") -> str:
         doc_sources = [s for s in sources_info if s.get("source") != "web"]
@@ -654,8 +686,6 @@ PRAVIDLÁ:
 
 Režim „odpoveď len z webu“: odpovedaj VÝLUČNE z výsledkov webového vyhľadávania. Cituj 3 až 6 zdrojov [W1]–[W6] pri každom dôležitom fakte (čísla, adresy, telefóny, názvy). Na konci sa zobrazí „Zdroje (internet)“ so 4–6 zdrojmi.
 NIKDY nepíš, že informácia chýba – vždy sformuluj odpoveď z nižšie poskytnutých webových výsledkov."""
-            if user_document_block:
-                prompt += "\n\n" + user_document_block.strip()
             return prompt
         body = f"""Otázka: {query}
 
@@ -759,7 +789,7 @@ NEPÍŠ, že v dokumentoch informácia chýba – vždy sformuluj odpoveď z dok
                         user_prompt = _build_user_prompt(context, sources_info, query, internet_only=True, user_document_block=user_doc_block)
                         try:
                             answer_text, web_sources = _call_claude_with_web_search(
-                                system_prompt, user_prompt, web_model, ANTHROPIC
+                                internet_only_system_prompt, user_prompt, web_model, ANTHROPIC
                             )
                             if answer_text:
                                 result_parts.append(strip_trailing_source_sections(answer_text))
